@@ -10,12 +10,33 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { registerUser } from "@/funciones/auth";
 
 export default function RegisterUserScreen() {
   const { width } = useWindowDimensions();
-  
   const router = useRouter();
+
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPass, setConfirmPass] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
+
+  const handleRegister = async () => {
+    if (password !== confirmPass) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+
+    try {
+      await registerUser(nombre, email, telefono, password);
+      alert("Usuario registrado correctamente");
+      router.replace("/loginU");
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scroll}>
@@ -33,13 +54,20 @@ export default function RegisterUserScreen() {
           <Text style={styles.title}>Crear cuenta</Text>
 
           <Text style={styles.label}>Nombre completo</Text>
-          <TextInput placeholder="Tu nombre completo" style={styles.input} />
+          <TextInput
+            placeholder="Tu nombre completo"
+            style={styles.input}
+            value={nombre}
+            onChangeText={setNombre}
+          />
 
           <Text style={styles.label}>Correo electrónico</Text>
           <TextInput
             placeholder="tu@email.com"
             style={styles.input}
             keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
           />
 
           <Text style={styles.label}>Teléfono</Text>
@@ -47,20 +75,26 @@ export default function RegisterUserScreen() {
             placeholder="+507 XXXX-XXXX"
             style={styles.input}
             keyboardType="phone-pad"
+            value={telefono}
+            onChangeText={setTelefono}
           />
 
           <Text style={styles.label}>Contraseña</Text>
           <TextInput
             placeholder="Mínimo 8 caracteres"
             style={styles.input}
-            secureTextEntry={true}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
 
           <Text style={styles.label}>Repite contraseña</Text>
           <TextInput
             placeholder="Repite tu contraseña"
             style={styles.input}
-            secureTextEntry={true}
+            secureTextEntry
+            value={confirmPass}
+            onChangeText={setConfirmPass}
           />
 
           <View style={styles.row}>
@@ -79,6 +113,7 @@ export default function RegisterUserScreen() {
           <TouchableOpacity
             style={[styles.registerButton, !acceptTerms && { opacity: 0.5 }]}
             disabled={!acceptTerms}
+            onPress={handleRegister}
           >
             <Text style={styles.registerButtonText}>Crear cuenta</Text>
           </TouchableOpacity>
@@ -119,7 +154,7 @@ const styles = StyleSheet.create({
     height: 60,
     resizeMode: "contain",
     marginBottom: 4,
-    marginTop:10,
+    marginTop: 10,
   },
   logoText: {
     fontSize: 18,
