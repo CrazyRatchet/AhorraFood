@@ -25,7 +25,7 @@ export default function LoginUserScreen() {
     try {
       await loginUser(email.trim(), password);
       Alert.alert("Éxito", "Sesión iniciada correctamente");
-      router.push("/"); // Puedes cambiar esta ruta si tienes otra home
+      router.push("/principal"); // Puedes cambiar esta ruta si tienes otra home
     } catch (error: any) {
       Alert.alert("Error", error.message);
     } finally {
@@ -75,12 +75,7 @@ export default function LoginUserScreen() {
         </Text>
 
         <View style={styles.divider} />
-        <Text style={styles.centerText}>
-          ¿Tienes una fonda?{" "}
-          <Text style={styles.link} onPress={() => router.push("/loginC")}>
-            Inicia sesión como comercio
-          </Text>
-        </Text>
+        
       </View>
     </View>
   );

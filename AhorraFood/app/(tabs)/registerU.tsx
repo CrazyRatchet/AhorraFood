@@ -115,7 +115,7 @@ export default function RegisterUserScreen() {
             disabled={!acceptTerms}
             onPress={handleRegister}
           >
-            <Text style={styles.registerButtonText}>Crear cuenta</Text>
+            <Text style={styles.registerButtonText} >Crear cuenta</Text>
           </TouchableOpacity>
 
           <Text style={styles.centerText}>

@@ -4,12 +4,12 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  TextInput,
   Platform,
 } from "react-native";
-import {
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePathname, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function DynamicHeader() {
   const insets = useSafeAreaInsets();
@@ -18,10 +18,8 @@ export default function DynamicHeader() {
 
   const isHome = pathname === "/";
   const isprincipal = pathname === "/principal";
-  const isregisterC =
-    pathname === "/registerC1" ||
-    pathname === "/registerC2" ||
-    pathname === "/registerC3";
+  const isFonda = pathname === "/fonda";
+  const isSupermercado = pathname === "/supermercado";
 
   return (
     <View style={{ backgroundColor: "white", paddingTop: insets.top }}>
@@ -35,7 +33,27 @@ export default function DynamicHeader() {
           <Text style={styles.title}>AhorraFood</Text>
         </View>
 
-        {/* Botones de la derecha */}
+        {/* Centro - Barra de búsqueda */}
+        {(isFonda || isSupermercado) && (
+          <View style={styles.center}>
+            <View style={styles.searchContainer}>
+              <Ionicons
+                name="search-outline"
+                size={16}
+                color="#94a3b8"
+                style={styles.searchIcon}
+              />
+              <TextInput
+                placeholder="Buscar por nombre, categoría o comercio..."
+                placeholderTextColor="#94a3b8"
+                style={styles.searchInput}
+                autoComplete="off"
+              />
+            </View>
+          </View>
+        )}
+
+        {/* Derecha */}
         <View style={styles.right}>
           {isHome && (
             <>
@@ -55,23 +73,42 @@ export default function DynamicHeader() {
           )}
 
           {isprincipal && (
-            <>
-              <TouchableOpacity
-                onPress={() => router.push("/principal")}
-                style={styles.iconButton}
-              >
-                {/* Puedes agregar un ícono aquí */}
-              </TouchableOpacity>
+            <View style={styles.navButtonsContainer}>
               <TouchableOpacity
                 onPress={() => router.push("/carro")}
-                style={styles.iconButton}
+                style={styles.iconWithTextButton}
               >
-                <Text style={styles.iconText}>🛒</Text>
+                <Ionicons name="cart-outline" size={18} color="#0f172a" />
+                <Text style={styles.iconLabel}>Carrito</Text>
               </TouchableOpacity>
-            </>
+
+              <TouchableOpacity
+                onPress={() => router.push("/perfil")}
+                style={styles.iconButtonOnly}
+              >
+                <Ionicons name="person-outline" size={18} color="#0f172a" />
+              </TouchableOpacity>
+            </View>
           )}
 
-          {/* En isregisterC ya no mostramos nada en el lado derecho */}
+          {(isFonda || isSupermercado) && (
+            <View style={styles.navButtonsContainer}>
+              <TouchableOpacity
+                onPress={() => router.push("/carro")}
+                style={styles.iconWithTextButton}
+              >
+                <Ionicons name="cart-outline" size={18} color="#0f172a" />
+                <Text style={styles.iconLabel}>Carrito</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => router.push("/perfil")}
+                style={styles.iconButtonOnly}
+              >
+                <Ionicons name="person-outline" size={18} color="#0f172a" />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -81,8 +118,8 @@ export default function DynamicHeader() {
 const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: Platform.OS === "ios" ? 12 : 8,
     backgroundColor: "white",
@@ -92,6 +129,7 @@ const styles = StyleSheet.create({
   left: {
     flexDirection: "row",
     alignItems: "center",
+    flexShrink: 0,
   },
   logo: {
     width: 30,
@@ -104,9 +142,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#2E7D32",
   },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    paddingHorizontal: 8,
+  },
   right: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
   },
   loginButton: {
     borderWidth: 1,
@@ -114,7 +158,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingVertical: 6,
     paddingHorizontal: 10,
-    marginRight: 8,
   },
   loginText: {
     color: "#333",
@@ -131,13 +174,58 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
   },
-  iconButton: {
-    marginHorizontal: 5,
-    padding: 6,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 20,
+  navButtonsContainer: {
+    flexDirection: "row",
+    gap: 10,
   },
-  iconText: {
-    fontSize: 16,
+  iconWithTextButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: "white",
+  },
+  iconLabel: {
+    fontSize: 13,
+    color: "#0f172a",
+    marginLeft: 6,
+  },
+  iconButtonOnly: {
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 8,
+    padding: 8,
+    backgroundColor: "white",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    width: "100%",
+    maxWidth: 400,
+  },
+  searchIcon: {
+    marginRight: 6,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    backgroundColor: "transparent",
+    padding: 0,
+    borderWidth: 0,
+    ...(Platform.OS === "web"
+      ? {
+          outlineWidth: 0,
+          outlineColor: "transparent",
+        }
+      : {}),
   },
 });

@@ -14,7 +14,7 @@ export default function TarjetasP({
         <Image source={product.image} style={styles.image} resizeMode="cover" />
         {product.discount && (
           <View style={styles.discountBadge}>
-            <Text style={styles.badgeText}>{product.discount}</Text>
+            <Text style={styles.badgeText}>{product.discount.trim()}</Text>
           </View>
         )}
         {product.top && (
@@ -24,13 +24,14 @@ export default function TarjetasP({
         )}
       </View>
 
-      <Text style={styles.title}>{product.title}</Text>
+      <Text style={styles.title}>{product.title.trim()}</Text>
 
-      <View style={styles.ratingRow}>
-        <FontAwesome name="star" color="#facc15" />
-        <Text style={styles.rating}>{product.rating}</Text>
-        <Text style={styles.reviews}>({product.reviews} reseñas)</Text>
-      </View>
+      {/* Descripción */}
+      {product.description && (
+        <Text style={styles.description} numberOfLines={2}>
+          {product.description.trim()}
+        </Text>
+      )}
 
       <View style={styles.infoRow}>
         <FontAwesome5
@@ -39,27 +40,43 @@ export default function TarjetasP({
           color="#cfd0d1ff"
           style={styles.icon}
         />
-        <Text style={styles.store}>{product.store}</Text>
+        <Text style={styles.store}>{product.store.trim()}</Text>
       </View>
 
-      <View style={styles.infoRow}>
-        <MaterialIcons
-          name="location-on"
-          size={12}
-          color="#cfd0d1ff"
-          style={styles.icon}
-        />
-        <Text style={styles.location}>{product.location}</Text>
-      </View>
+      {/* Fecha de vencimiento */}
+      {product.expirationDate && (
+        <View style={styles.infoRow}>
+          <MaterialIcons
+            name="event"
+            size={12}
+            color="#cfd0d1ff"
+            style={styles.icon}
+          />
+          <Text style={styles.store}>Vence: {product.expirationDate}</Text>
+        </View>
+      )}
+
+      {/* Tipo de entrega */}
+      {product.deliveryType && (
+        <View style={styles.infoRow}>
+          <MaterialIcons
+            name="local-shipping"
+            size={12}
+            color="#cfd0d1ff"
+            style={styles.icon}
+          />
+          <Text style={styles.store}>{product.deliveryType}</Text>
+        </View>
+      )}
 
       <View style={styles.priceRow}>
-        <Text style={styles.price}>${product.price}</Text>
-        <Text style={styles.oldPrice}>${product.oldPrice}</Text>
+        <Text style={styles.price}>USD {product.price}</Text>
+        <Text style={styles.oldPrice}>USD {product.oldPrice}</Text>
       </View>
 
       <TouchableOpacity style={styles.button}>
         <FontAwesome name="shopping-cart" color="#fff" />
-        <Text style={styles.buttonText}> Agregar al Carrito</Text>
+        <Text style={styles.buttonText}> Agregar al carrito</Text>
       </TouchableOpacity>
     </View>
   );
@@ -107,19 +124,12 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: "bold",
     fontSize: 14,
+    marginBottom: 2,
   },
-  ratingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  rating: {
-    fontSize: 13,
-    fontWeight: "bold",
-  },
-  reviews: {
+  description: {
     fontSize: 12,
-    color: "#6b7280",
+    color: "#64748b",
+    marginBottom: 4,
   },
   infoRow: {
     flexDirection: "row",
@@ -132,10 +142,6 @@ const styles = StyleSheet.create({
   store: {
     fontSize: 12,
     color: "#334155",
-  },
-  location: {
-    fontSize: 12,
-    color: "#6b7280",
   },
   priceRow: {
     flexDirection: "row",
@@ -160,7 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     flexDirection: "row",
     justifyContent: "center",
-    alignItems:"center",
+    alignItems: "center",
   },
   buttonText: {
     color: "#fff",

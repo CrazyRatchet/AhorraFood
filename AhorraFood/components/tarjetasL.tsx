@@ -9,78 +9,98 @@ import {
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-export default function tarjetasL() {
+export default function TarjetasL() {
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const isLargeScreen = width > 600;
-  return (
-    <View style={[styles.container, isLargeScreen ? styles.row : styles.column]}>
-      {/* Fonda y Restaurantes */}
-      <View style={[styles.card, { backgroundColor: "#2E7D32" }]}>
-        <View style={styles.header}>
-          <MaterialCommunityIcons
-            name="silverware-fork-knife"
-            size={24}
-            color="white"
-          />
-          <Text style={styles.title}>Fondas y Restaurantes</Text>
-        </View>
-        <Text style={styles.subtitle}>
-          Platos tradicionales panameños con descuentos especiales
-        </Text>
-        <View style={styles.stats}>
-          <Text style={styles.statText}>📍 156 comercios</Text>
-          <Text style={styles.statText}>📉 hasta 40% desc.</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.linkRow}
-          onPress={() => router.push("/fonda")}
-        >
-          <Text style={styles.linkText}>Ver Productos</Text>
-          <Ionicons name="arrow-forward" size={18} color="white" />
-        </TouchableOpacity>
-      </View>
+  const isLargeScreen = width > 768;
 
-      {/* Supermercados */}
-      <View style={[styles.card, { backgroundColor: "#1565C0" }]}>
-        <View style={styles.header}>
-          <MaterialCommunityIcons
-            name="shopping-outline"
-            size={24}
-            color="white"
-          />
-          <Text style={styles.title}>Supermercados</Text>
-        </View>
-        <Text style={styles.subtitle}>
-          Productos frescos y abarrotes con ofertas diarias
-        </Text>
-        <View style={styles.stats}>
-          <Text style={styles.statText}>🛒 23 tiendas</Text>
-          <Text style={styles.statText}>📉 hasta 35% desc.</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.linkRow}
-          onPress={() => router.push("/supermercado")}
+  return (
+    <View style={styles.outer}>
+      <View
+        style={[
+          styles.container,
+          { flexDirection: isLargeScreen ? "row" : "column" },
+        ]}
+      >
+        {/* Fonda y Restaurantes */}
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: "#2E7D32", marginRight: isLargeScreen ? 16 : 0 },
+          ]}
         >
-          <Text style={styles.linkText}>Ver productos</Text>
-          <Ionicons name="arrow-forward" size={18} color="white" />
-        </TouchableOpacity>
+          <View style={styles.header}>
+            <MaterialCommunityIcons
+              name="silverware-fork-knife"
+              size={24}
+              color="white"
+            />
+            <Text style={styles.title}>Fondas y Restaurantes</Text>
+          </View>
+          <Text style={styles.subtitle}>
+            Platos tradicionales panameños con descuentos especiales
+          </Text>
+          <View style={styles.stats}>
+            <Text style={styles.statText}>📍 156 comercios</Text>
+            <Text style={styles.statText}>📉 hasta 40% desc.</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.linkRow}
+            onPress={() => router.push("/fonda")}
+          >
+            <Text style={styles.linkText}>Ver Productos</Text>
+            <Ionicons name="arrow-forward" size={18} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Supermercados */}
+        <View style={[styles.card, { backgroundColor: "#1565C0" }]}>
+          <View style={styles.header}>
+            <MaterialCommunityIcons
+              name="shopping-outline"
+              size={24}
+              color="white"
+            />
+            <Text style={styles.title}>Supermercados</Text>
+          </View>
+          <Text style={styles.subtitle}>
+            Productos frescos y abarrotes con ofertas diarias
+          </Text>
+          <View style={styles.stats}>
+            <Text style={styles.statText}>🛒 23 tiendas</Text>
+            <Text style={styles.statText}>📉 hasta 35% desc.</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.linkRow}
+            onPress={() => router.push("/supermercado")}
+          >
+            <Text style={styles.linkText}>Ver productos</Text>
+            <Ionicons name="arrow-forward" size={18} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
+  outer: {
+    paddingHorizontal: 16,
+    marginTop: 12,
+    width: "100%",
+    alignItems: "center",
+  },
   container: {
-    flexDirection: "row",
-    padding: 16,
-    gap: 36,
-     
+    width: "100%",
+    maxWidth: 1000,
+    justifyContent: "center",
   },
   card: {
-    borderRadius: 10,
+    flex: 1,
+    borderRadius: 12,
     padding: 16,
+    marginBottom: 16,
     elevation: 3,
-    
   },
   header: {
     flexDirection: "row",
@@ -115,11 +135,5 @@ const styles = StyleSheet.create({
   linkText: {
     color: "white",
     fontWeight: "600",
-  },
-   row: {
-    flexDirection: 'row',
-  },
-  column: {
-    flexDirection: 'column',
   },
 });
