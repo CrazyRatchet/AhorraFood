@@ -1,50 +1,61 @@
-// registerC2.tsx
 import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
-  
+  ScrollView,
+  Alert,
 } from "react-native";
-import { useRouter } from "expo-router";
-import Header from "@/components/Header";
-import Footer from "@/components/footer";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 export default function RegisterStep2() {
   const router = useRouter();
+  const params = useLocalSearchParams();
 
   const [form, setForm] = useState({
-    nombreNegocio: "",
-    nombrePropietario: "",
-    correo: "",
     telefono: "",
     direccion: "",
-    ubicacion: "",
     categoria: "",
-    descripcion: "",
-    horaApertura: "",
-    horaCierre: "",
     recogerLocal: false,
     envioDomicilio: false,
   });
 
   const handleChange = (name: string, value: string | boolean) => {
-    setForm({ ...form, [name]: value });
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleNext = () => {
+    if (
+      !form.telefono.trim() ||
+      !form.direccion.trim() ||
+      !form.categoria.trim() ||
+      (!form.recogerLocal && !form.envioDomicilio)
+    ) {
+      Alert.alert("Por favor completa todos los campos obligatorios y selecciona al menos un tipo de entrega.");
+      return;
+    }
+
+    router.push({
+      pathname: "/registerC3",
+      params: {
+        ...params,
+        ...form,
+        recogerLocal: form.recogerLocal.toString(),
+        envioDomicilio: form.envioDomicilio.toString(),
+      },
+    });
   };
 
   return (
     <View style={{ flex: 1 }}>
-      <Header />
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Registro de Comercio - Paso 2</Text>
         <Text style={styles.subtitle}>
           Información del negocio - Completa los datos de tu establecimiento
         </Text>
 
-        {/* Steps */}
         <View style={styles.stepsContainer}>
           <View style={[styles.stepCircle, styles.completedStep]}>
             <Text style={styles.stepNumber}>1</Text>
@@ -59,174 +70,138 @@ export default function RegisterStep2() {
           </View>
         </View>
 
-        {/* Form */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Información del Negocio</Text>
-          <Text style={styles.sectionSubtitle}>
-            Proporciona los datos de tu fonda/restaurante
-          </Text>
+        <Text style={styles.label}>Teléfono</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Ej. 6123-4567"
+          keyboardType="phone-pad"
+          value={form.telefono}
+          onChangeText={(text) => handleChange("telefono", text)}
+        />
 
-          {/* Inputs */}
-          <View style={styles.row}>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Nombre del Negocio *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Ej: Fonda Doña Carmen"
-                onChangeText={(text) => handleChange("nombreNegocio", text)}
-              />
-            </View>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Nombre del Propietario *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Tu nombre completo"
-                onChangeText={(text) => handleChange("nombrePropietario", text)}
-              />
-            </View>
-          </View>
+        <Text style={styles.label}>Dirección</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Dirección exacta del negocio"
+          value={form.direccion}
+          onChangeText={(text) => handleChange("direccion", text)}
+        />
 
-          <View style={styles.row}>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Correo Electrónico *</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="email-address"
-                placeholder="correo@ejemplo.com"
-                onChangeText={(text) => handleChange("correo", text)}
-              />
-            </View>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Teléfono</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="+507 6123-4567"
-                keyboardType="phone-pad"
-                onChangeText={(text) => handleChange("telefono", text)}
-              />
-            </View>
-          </View>
-
-          <Text style={styles.label}>Dirección Completa</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Dirección completa del negocio"
-            onChangeText={(text) => handleChange("direccion", text)}
-          />
-
-          <View style={styles.row}>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Ubicación</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Selecciona ubicación"
-                onChangeText={(text) => handleChange("ubicacion", text)}
-              />
-            </View>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Categoría</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Selecciona categoría"
-                onChangeText={(text) => handleChange("categoria", text)}
-              />
-            </View>
-          </View>
-
-          <Text style={styles.label}>Descripción del Negocio</Text>
-          <TextInput
-            style={[styles.input, { height: 80 }]}
-            multiline
-            placeholder="Describe tu negocio..."
-            onChangeText={(text) => handleChange("descripcion", text)}
-          />
-
-          <View style={styles.row}>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Hora de Apertura</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="00:00"
-                onChangeText={(text) => handleChange("horaApertura", text)}
-              />
-            </View>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Hora de Cierre</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="00:00"
-                onChangeText={(text) => handleChange("horaCierre", text)}
-              />
-            </View>
-          </View>
-
-          <Text style={styles.label}>Opciones de Entrega</Text>
-          <View style={styles.row}>
-            <TouchableOpacity
-              onPress={() => handleChange("recogerLocal", !form.recogerLocal)}
-              style={styles.checkboxWrapper}
+        <Text style={styles.label}>Categoría</Text>
+        <View style={styles.optionsRow}>
+          <TouchableOpacity
+            style={[
+              styles.option,
+              form.categoria === "Fonda" && styles.selectedOption,
+            ]}
+            onPress={() => handleChange("categoria", "Fonda")}
+          >
+            <Text
+              style={[
+                styles.optionText,
+                form.categoria === "Fonda" && styles.selectedOptionText,
+              ]}
             >
-              <View style={styles.checkbox}>
-                {form.recogerLocal && <View style={styles.checkedBox} />}
-              </View>
-              <Text style={styles.checkboxLabel}>Recoger en local</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => handleChange("envioDomicilio", !form.envioDomicilio)}
-              style={styles.checkboxWrapper}
-            >
-              <View style={styles.checkbox}>
-                {form.envioDomicilio && <View style={styles.checkedBox} />}
-              </View>
-              <Text style={styles.checkboxLabel}>Envío a domicilio</Text>
-            </TouchableOpacity>
-          </View>
+              Fonda / Restaurante
+            </Text>
+          </TouchableOpacity>
 
-          {/* Botones */}
-          <View style={styles.buttonsRow}>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonGray]}
-              onPress={() => router.push("/registerC1")}
+          <TouchableOpacity
+            style={[
+              styles.option,
+              form.categoria === "Supermercado" && styles.selectedOption,
+            ]}
+            onPress={() => handleChange("categoria", "Supermercado")}
+          >
+            <Text
+              style={[
+                styles.optionText,
+                form.categoria === "Supermercado" && styles.selectedOptionText,
+              ]}
             >
-              <Text style={styles.buttonText}>Anterior</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonGreen]}
-              onPress={() => router.push("/registerC3")}
+              Supermercado
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.label}>¿Qué tipo de entrega ofrece?</Text>
+        <View style={styles.optionsRow}>
+          <TouchableOpacity
+            style={[
+              styles.option,
+              form.recogerLocal && styles.selectedOption,
+            ]}
+            onPress={() =>
+              handleChange("recogerLocal", !form.recogerLocal)
+            }
+          >
+            <Text
+              style={[
+                styles.optionText,
+                form.recogerLocal && styles.selectedOptionText,
+              ]}
             >
-              <Text style={styles.buttonText}>Siguiente</Text>
-            </TouchableOpacity>
-          </View>
+              Recoger en Local
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.option,
+              form.envioDomicilio && styles.selectedOption,
+            ]}
+            onPress={() =>
+              handleChange("envioDomicilio", !form.envioDomicilio)
+            }
+          >
+            <Text
+              style={[
+                styles.optionText,
+                form.envioDomicilio && styles.selectedOptionText,
+              ]}
+            >
+              Envío a Domicilio
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.push("/registerC1")}>
+            <Text style={styles.backButtonText}>Anterior</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+            <Text style={styles.nextButtonText}>Siguiente</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
-      <Footer />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f9fafb",
     padding: 20,
+    gap: 16,
+    backgroundColor: "#f9fafb",
     paddingBottom: 40,
   },
   title: {
     fontSize: 18,
     fontWeight: "600",
-    textAlign: "center",
     color: "#111827",
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 12,
     textAlign: "center",
     color: "#6b7280",
-    marginBottom: 20,
+    marginBottom: 12,
   },
   stepsContainer: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 30,
+    justifyContent: "center",
+    marginBottom: 12,
   },
   stepCircle: {
     width: 28,
@@ -236,10 +211,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  activeStep: {
+  completedStep: {
     backgroundColor: "#166534",
   },
-  completedStep: {
+  activeStep: {
     backgroundColor: "#166534",
   },
   stepNumber: {
@@ -251,31 +226,9 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: "#d1d5db",
   },
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-    width: "100%",
-    maxWidth: 800,
-    alignSelf: "center",
-  },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 4,
-  },
-  sectionSubtitle: {
-    fontSize: 12,
-    color: "#6b7280",
-    marginBottom: 16,
-  },
   label: {
-    fontSize: 13,
+    fontSize: 14,
+    fontWeight: "500",
     color: "#374151",
     marginBottom: 4,
   },
@@ -284,60 +237,64 @@ const styles = StyleSheet.create({
     borderColor: "#d1d5db",
     borderRadius: 6,
     padding: 10,
-    fontSize: 13,
-    backgroundColor: "#f9fafb",
+    backgroundColor: "white",
   },
-  row: {
+  optionsRow: {
     flexDirection: "row",
-    gap: 12,
-    marginBottom: 16,
+    gap: 10,
+    marginVertical: 8,
+    flexWrap: "wrap",
   },
-  inputWrapper: {
-    flex: 1,
-  },
-  checkboxWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  checkbox: {
-    width: 18,
-    height: 18,
+  option: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: "#374151",
-    marginRight: 6,
-    justifyContent: "center",
-    alignItems: "center",
+    borderColor: "#d1d5db",
+    borderRadius: 6,
+    backgroundColor: "white",
   },
-  checkedBox: {
-    width: 10,
-    height: 10,
+  selectedOption: {
     backgroundColor: "#166534",
+    borderColor: "#166534",
   },
-  checkboxLabel: {
-    fontSize: 13,
+  optionText: {
     color: "#374151",
+    fontSize: 13,
   },
-  buttonsRow: {
+  selectedOptionText: {
+    color: "white",
+    fontWeight: "600",
+  },
+  buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
+    width: "100%",
+    marginTop: 24,
+    gap: 10,
   },
-  button: {
+  backButton: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
     borderRadius: 6,
     alignItems: "center",
-    marginHorizontal: 5,
   },
-  buttonGreen: {
+  backButtonText: {
+    fontSize: 14,
+    color: "#333",
+    fontWeight: "600",
+  },
+  nextButton: {
+    flex: 1,
     backgroundColor: "#166534",
+    borderRadius: 6,
+    paddingVertical: 12,
+    alignItems: "center",
   },
-  buttonGray: {
-    backgroundColor: "#e5e7eb",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "500",
+  nextButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 14,
   },
 });

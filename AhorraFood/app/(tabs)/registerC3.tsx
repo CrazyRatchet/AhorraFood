@@ -7,25 +7,96 @@ import {
   TouchableOpacity,
   ScrollView,
   useWindowDimensions,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import * as DocumentPicker from "expo-document-picker";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+import { registerComercio } from "../../funciones/registerComercio";
 
 export default function RegisterC3() {
   const { width } = useWindowDimensions();
   const router = useRouter();
+  const params = useLocalSearchParams();
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [files, setFiles] = useState({
+    licencia: null,
+    permisos_salud: null,
+    ruc: null,
+  });
+
+  const pickDocument = async (field: "licencia" | "permisos_salud" | "ruc") => {
+    const result = await DocumentPicker.getDocumentAsync({ copyToCacheDirectory: true });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setFiles((prev) => ({ ...prev, [field]: result.assets[0].uri }));
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitting) return; // Evitar múltiples envíos
+
+    if (!termsAccepted) {
+      Alert.alert("Error", "Debes aceptar los términos y condiciones");
+      return;
+    }
+
+    if (!files.licencia || !files.permisos_salud || !files.ruc) {
+      Alert.alert("Error", "Por favor sube todos los documentos requeridos");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const payload = {
+      nombre: params.nombreNegocio as string,
+      propietario: params.nombrePropietario as string,
+      email: params.correo as string,
+      password: params.password as string,
+      telefono: params.telefono as string,
+      direccion: params.direccion as string,
+      categoria: params.categoria as string,
+      recogerLocal: params.recogerLocal === "true",
+      envioDomicilio: params.envioDomicilio === "true",
+      documentos: {
+        licencia: files.licencia,
+        permisos_salud: files.permisos_salud,
+        ruc: files.ruc,
+      },
+    };
+
+    try {
+      await registerComercio(payload);
+      Alert.alert(
+        "Registro exitoso", 
+        "Tu comercio ha sido registrado exitosamente. Puedes iniciar sesión ahora.", 
+        [
+          {
+            text: "Iniciar sesión",
+            onPress: () => router.replace("/loginU"),
+          },
+        ]
+      );
+    } catch (error: any) {
+      console.error("Error al registrar:", error);
+      Alert.alert(
+        "Error al registrar", 
+        error.message || "Hubo un problema al registrar tu comercio. Inténtalo nuevamente."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <View style={{ flex: 1 }}>
       <Header />
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Registro de Comercio - Paso 3</Text>
-        <Text style={styles.subtitle}>
-          Documentos finales - Sube la documentación requerida
-        </Text>
+        <Text style={styles.subtitle}>Documentos finales - Sube la documentación requerida</Text>
 
         <View style={styles.stepsContainer}>
           <View style={[styles.stepCircle, styles.completedStep]}>
@@ -47,24 +118,24 @@ export default function RegisterC3() {
         </Text>
 
         <View style={styles.uploadContainer}>
-          <TouchableOpacity style={styles.uploadBox}>
+          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("licencia")}>            
             <Ionicons name="cloud-upload-outline" size={28} color="#6b7280" />
             <Text style={styles.uploadText}>
-              Haz clic para subir tu licencia de funcionamiento
+              {files.licencia ? "Licencia subida ✔" : "Sube tu licencia de funcionamiento"}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.uploadBox}>
+          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("permisos_salud")}>            
             <Ionicons name="cloud-upload-outline" size={28} color="#6b7280" />
             <Text style={styles.uploadText}>
-              Sube tu permiso de salud vigente
+              {files.permisos_salud ? "Permiso de salud subido ✔" : "Sube tu permiso de salud"}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.uploadBox}>
+          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("ruc")}>            
             <Ionicons name="cloud-upload-outline" size={28} color="#6b7280" />
             <Text style={styles.uploadText}>
-              Sube tu registro tributario (RUC)
+              {files.ruc ? "RUC subido ✔" : "Sube tu registro tributario (RUC)"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -77,23 +148,25 @@ export default function RegisterC3() {
             {termsAccepted && <View style={styles.checkboxChecked} />}
           </TouchableOpacity>
           <Text style={styles.termsText}>
-            Acepto los <Text style={styles.link}>términos y condiciones</Text>{" "}
-            de AhorraFood
+            Acepto los <Text style={styles.link}>términos y condiciones</Text> de AhorraFood
           </Text>
         </View>
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.push("/registerC2")}
-          >
+          <TouchableOpacity style={styles.backButton} onPress={() => router.push("/registerC2")}>            
             <Text style={styles.backButtonText}>Anterior</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.submitButton, !termsAccepted && { opacity: 0.5 }]}
-            disabled={!termsAccepted}
+            style={[
+              styles.submitButton, 
+              (!termsAccepted || isSubmitting) && { opacity: 0.5 }
+            ]}
+            disabled={!termsAccepted || isSubmitting}
+            onPress={handleSubmit}
           >
-            <Text style={styles.submitButtonText}>Enviar Registro</Text>
+            <Text style={styles.submitButtonText}>
+              {isSubmitting ? "Enviando..." : "Enviar Registro"}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -163,24 +236,23 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 16,
   },
- uploadContainer: {
-  width: "100%",
-  maxWidth: 500,
-  alignSelf: "center",
-  gap: 16,
-},
-uploadBox: {
-  width: "100%",
-  padding: 18,
-  borderWidth: 1,
-  borderStyle: "dashed",
-  borderColor: "#d1d5db",
-  borderRadius: 8,
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "#ffffff",
-},
-
+  uploadContainer: {
+    width: "100%",
+    maxWidth: 500,
+    alignSelf: "center",
+    gap: 16,
+  },
+  uploadBox: {
+    width: "100%",
+    padding: 18,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ffffff",
+  },
   uploadText: {
     fontSize: 13,
     color: "#374151",
