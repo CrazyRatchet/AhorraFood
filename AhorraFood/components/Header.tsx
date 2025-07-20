@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   Platform,
+  Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePathname, useRouter } from "expo-router";
@@ -16,10 +17,14 @@ export default function DynamicHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
+  const screenWidth = Dimensions.get("window").width;
+  const isMobile = screenWidth < 768;
+
   const isHome = pathname === "/";
   const isprincipal = pathname === "/principal";
   const isFonda = pathname === "/fonda";
   const isSupermercado = pathname === "/supermercado";
+   const isVistap = pathname === "/vistaP";
 
   return (
     <View style={{ backgroundColor: "white", paddingTop: insets.top }}>
@@ -30,7 +35,7 @@ export default function DynamicHeader() {
             source={require("@/assets/images/logooo.png")}
             style={styles.logo}
           />
-          <Text style={styles.title}>AhorraFood</Text>
+          {!isMobile && <Text style={styles.title}>AhorraFood</Text>}
         </View>
 
         {/* Centro - Barra de búsqueda */}
@@ -44,7 +49,7 @@ export default function DynamicHeader() {
                 style={styles.searchIcon}
               />
               <TextInput
-                placeholder="Buscar por nombre, categoría o comercio..."
+                placeholder="nombre o comercio..."
                 placeholderTextColor="#94a3b8"
                 style={styles.searchInput}
                 autoComplete="off"
@@ -72,33 +77,16 @@ export default function DynamicHeader() {
             </>
           )}
 
-          {isprincipal && (
+          {(isprincipal || isFonda || isSupermercado || isVistap) && (
             <View style={styles.navButtonsContainer}>
               <TouchableOpacity
                 onPress={() => router.push("/carro")}
                 style={styles.iconWithTextButton}
               >
                 <Ionicons name="cart-outline" size={18} color="#0f172a" />
-                <Text style={styles.iconLabel}>Carrito</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => router.push("/perfil")}
-                style={styles.iconButtonOnly}
-              >
-                <Ionicons name="person-outline" size={18} color="#0f172a" />
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {(isFonda || isSupermercado) && (
-            <View style={styles.navButtonsContainer}>
-              <TouchableOpacity
-                onPress={() => router.push("/carro")}
-                style={styles.iconWithTextButton}
-              >
-                <Ionicons name="cart-outline" size={18} color="#0f172a" />
-                <Text style={styles.iconLabel}>Carrito</Text>
+                {!isMobile && (
+                  <Text style={styles.iconLabel}>Carrito</Text>
+                )}
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -132,8 +120,8 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   logo: {
-    width: 30,
-    height: 30,
+    width: 35,
+    height: 35,
     resizeMode: "contain",
     marginRight: 8,
   },

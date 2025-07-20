@@ -8,8 +8,9 @@ import {
   Image,
   useWindowDimensions,
   Alert,
+  Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter,Link  } from "expo-router";
 import { loginUser } from "@/funciones/auth";
 
 export default function LoginUserScreen() {
@@ -24,10 +25,20 @@ export default function LoginUserScreen() {
     setLoading(true);
     try {
       await loginUser(email.trim(), password);
-      Alert.alert("Éxito", "Sesión iniciada correctamente");
-      router.push("/principal"); // Puedes cambiar esta ruta si tienes otra home
+
+      if (Platform.OS === "web") {
+        window.alert("Sesión iniciada correctamente");
+      } else {
+        Alert.alert("Éxito", "Sesión iniciada correctamente");
+      }
+
+      router.push("/principal");
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+      if (Platform.OS === "web") {
+        window.alert(error.message);
+      } else {
+        Alert.alert("Error", error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -35,6 +46,11 @@ export default function LoginUserScreen() {
 
   return (
     <View style={styles.container}>
+      <Link href="/gestionC" asChild>
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.text}>Comercio</Text>
+      </TouchableOpacity>
+    </Link>
       <Image
         source={require("@/assets/images/logooo.png")}
         style={styles.logo}
@@ -63,8 +79,14 @@ export default function LoginUserScreen() {
           value={password}
         />
 
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
-          <Text style={styles.loginButtonText}>{loading ? "Cargando..." : "Iniciar sesión"}</Text>
+        <TouchableOpacity
+          style={styles.loginButton}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text style={styles.loginButtonText}>
+            {loading ? "Cargando..." : "Iniciar sesión"}
+          </Text>
         </TouchableOpacity>
 
         <Text style={styles.centerText}>
@@ -75,7 +97,6 @@ export default function LoginUserScreen() {
         </Text>
 
         <View style={styles.divider} />
-        
       </View>
     </View>
   );
@@ -95,6 +116,18 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
     marginBottom: 4,
     marginTop: 10,
+  },
+   button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#f1f5f9",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  text: {
+    color: "#1e3a8a",
+    fontWeight: "bold",
+    fontSize: 16,
   },
   logoText: {
     fontSize: 18,

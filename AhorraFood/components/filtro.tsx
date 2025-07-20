@@ -3,90 +3,132 @@ import {
   View,
   Text,
   StyleSheet,
-  Platform,
   TouchableOpacity,
+  useWindowDimensions,
+  Platform,
 } from "react-native";
 import { RadioButton } from "react-native-paper";
 import Slider from "@react-native-community/slider";
 import { Picker } from "@react-native-picker/picker";
+
 export default function FilterSidebar() {
   const [price, setPrice] = useState(10);
   const [location, setLocation] = useState("all");
   const [deliveryType, setDeliveryType] = useState("todos");
+  const [showFilters, setShowFilters] = useState(false);
+
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Filtros</Text>
-      <Text style={styles.description}>
-        Permite refinar los resultados por precio, ubicación, tipo de entrega y
-        fecha de vencimiento.
-      </Text>
-
-      {/* Rango de Precios */}
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Rango de precios</Text>
-        <Slider
-          style={{ width: "100%" }}
-          minimumValue={0}
-          maximumValue={10}
-          step={1}
-          value={price}
-          onValueChange={setPrice}
-          minimumTrackTintColor="#2E7D32"
-          maximumTrackTintColor="#ccc"
-          thumbTintColor="#2E7D32"
-        />
-        <View style={styles.priceLabels}>
-          <Text>USD 0</Text>
-          <Text>USD {price}</Text>
-        </View>
-      </View>
-
-      {/* Ubicación */}
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Ubicación</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={location}
-            onValueChange={(itemValue) => setLocation(itemValue)}
-            style={styles.picker}
-          >
-            <Picker.Item label="Todas las ubicaciones" value="all" />
-            <Picker.Item label="Panamá" value="panama" />
-            <Picker.Item label="Colón" value="colon" />
-            {/* Agrega más opciones si es necesario */}
-          </Picker>
-        </View>
-      </View>
-
-      {/* Tipo de entrega */}
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Tipo de entrega</Text>
-        <RadioButton.Group
-          onValueChange={(value) => setDeliveryType(value)}
-          value={deliveryType}
+      {isMobile && (
+        <TouchableOpacity
+          style={styles.toggleButton}
+          onPress={() => setShowFilters(!showFilters)}
         >
-          <RadioButton.Item label="Todos" value="todos" color="#2E7D32" />
-          <RadioButton.Item
-            label="Recogida en el local"
-            value="local"
-            color="#2E7D32"
-          />
-          <RadioButton.Item
-            label="Envío a domicilio"
-            value="domicilio"
-            color="#2E7D32"
-          />
-        </RadioButton.Group>
-      </View>
+          <Text style={styles.toggleButtonText}>
+            {showFilters ? "Ocultar filtros" : "Mostrar filtros"}
+          </Text>
+          <Text style={{ color: "#64748b", fontSize: 16 }}>
+            {showFilters ? "▲" : "▼"}
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {(!isMobile || showFilters) && (
+        <>
+          <Text style={styles.header}>Filtros</Text>
+          <Text style={styles.description}>
+            Permite refinar los resultados por precio, ubicación, tipo de
+            entrega y fecha de vencimiento.
+          </Text>
+
+          {/* Rango de Precios */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Rango de precios</Text>
+            <Slider
+              style={{ width: "100%" }}
+              minimumValue={0}
+              maximumValue={10}
+              step={1}
+              value={price}
+              onValueChange={setPrice}
+              minimumTrackTintColor="#2E7D32"
+              maximumTrackTintColor="#ccc"
+              thumbTintColor="#2E7D32"
+            />
+            <View style={styles.priceLabels}>
+              <Text>USD 0</Text>
+              <Text>USD {price}</Text>
+            </View>
+          </View>
+
+          {/* Ubicación */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Ubicación</Text>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={location}
+                onValueChange={(itemValue) => setLocation(itemValue)}
+                style={styles.picker}
+                itemStyle={styles.pickerItem}
+              >
+                <Picker.Item label="Todas las ubicaciones" value="all" />
+                <Picker.Item label="Panamá" value="panama" />
+                <Picker.Item label="Colón" value="colon" />
+              </Picker>
+            </View>
+          </View>
+
+          {/* Tipo de entrega */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Tipo de entrega</Text>
+            <RadioButton.Group
+              onValueChange={(value) => setDeliveryType(value)}
+              value={deliveryType}
+            >
+              <RadioButton.Item label="Todos" value="todos" color="#2E7D32" />
+              <RadioButton.Item
+                label="Recogida en el local"
+                value="local"
+                color="#2E7D32"
+              />
+              <RadioButton.Item
+                label="Envío a domicilio"
+                value="domicilio"
+                color="#2E7D32"
+              />
+            </RadioButton.Group>
+          </View>
+        </>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 10,
     backgroundColor: "#f8fafc",
+    flex: 1,
+    borderRadius: 9,
+    marginBottom: 10,
+  },
+  toggleButton: {
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 12,
+    backgroundColor: "white",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  toggleButtonText: {
+    color: "#1e293b",
+    fontSize: 16,
     flex: 1,
   },
   header: {
@@ -125,9 +167,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     marginTop: 6,
+    height: 40,
+    justifyContent: "center",
   },
   picker: {
-    height: 40,
     width: "100%",
+    height: Platform.OS === "web" ? 40 : 50,
+    fontSize: 14,
+    ...(Platform.OS === "web" ? {  } : {}),
+  },
+  pickerItem: {
+    fontSize: 14,
+    height: 40,
   },
 });

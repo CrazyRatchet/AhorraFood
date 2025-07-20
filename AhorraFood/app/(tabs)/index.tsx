@@ -81,13 +81,14 @@ const products = [
     image: require("@/assets/images/manzana.jpg"),
     rating: 4.4,
     reviews: 56,
-    store: "Super",
+    store: "Super 99",
     location: "Casco Viejo",
     price: "3.36",
     oldPrice: "4.8",
     discount: "30%",
     top: true,
   },
+  
 ];
 export default function HomeScreen() {
   return (

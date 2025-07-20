@@ -7,10 +7,13 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Dimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+
+const screenWidth = Dimensions.get("window").width;
 
 export default function RegisterC1() {
   const router = useRouter();
@@ -30,12 +33,7 @@ export default function RegisterC1() {
   };
 
   const handleNext = () => {
-    const {
-      nombreNegocio,
-      nombrePropietario,
-      correo,
-      password,
-    } = form;
+    const { nombreNegocio, nombrePropietario, correo, password } = form;
 
     if (
       !nombreNegocio.trim() ||
@@ -56,51 +54,53 @@ export default function RegisterC1() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#f3f4f6" }}> {/* gris claro general */}
       <Header />
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Registro de Comercio - Paso 1</Text>
-        <Text style={styles.subtitle}>
-          Información general del negocio y el propietario
-        </Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.formContainer}>
+          <Text style={styles.title}>Registro de Comercio - Paso 1</Text>
+          <Text style={styles.subtitle}>
+            Información general del negocio y el propietario
+          </Text>
 
-        <Text style={styles.label}>Nombre del Negocio</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ej. Fonda Doña María"
-          value={form.nombreNegocio}
-          onChangeText={(text) => handleChange("nombreNegocio", text)}
-        />
+          <Text style={styles.label}>Nombre del Negocio</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Ej. Fonda Doña María"
+            value={form.nombreNegocio}
+            onChangeText={(text) => handleChange("nombreNegocio", text)}
+          />
 
-        <Text style={styles.label}>Nombre del Propietario</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Nombre completo"
-          value={form.nombrePropietario}
-          onChangeText={(text) => handleChange("nombrePropietario", text)}
-        />
+          <Text style={styles.label}>Nombre del Propietario</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre completo"
+            value={form.nombrePropietario}
+            onChangeText={(text) => handleChange("nombrePropietario", text)}
+          />
 
-        <Text style={styles.label}>Correo Electrónico</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="correo@ejemplo.com"
-          keyboardType="email-address"
-          value={form.correo}
-          onChangeText={(text) => handleChange("correo", text)}
-        />
+          <Text style={styles.label}>Correo Electrónico</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="correo@ejemplo.com"
+            keyboardType="email-address"
+            value={form.correo}
+            onChangeText={(text) => handleChange("correo", text)}
+          />
 
-        <Text style={styles.label}>Contraseña</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Mínimo 6 caracteres"
-          secureTextEntry
-          value={form.password}
-          onChangeText={(text) => handleChange("password", text)}
-        />
+          <Text style={styles.label}>Contraseña</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Mínimo 6 caracteres"
+            secureTextEntry
+            value={form.password}
+            onChangeText={(text) => handleChange("password", text)}
+          />
 
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
-          <Text style={styles.buttonText}>Siguiente</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleNext}>
+            <Text style={styles.buttonText}>Siguiente</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
       <Footer />
     </View>
@@ -108,10 +108,23 @@ export default function RegisterC1() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
+  scrollContent: {
+    paddingVertical: 32,
+    alignItems: "center",
+  },
+  formContainer: {
     backgroundColor: "#f9fafb",
+    padding: 24,
+    borderRadius: 10,
+    width: "100%",
+    maxWidth: 600,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
     gap: 12,
+    
   },
   title: {
     fontSize: 18,
@@ -129,7 +142,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#374151",
-    marginTop: 8,
+    marginTop: 4,
   },
   input: {
     borderWidth: 1,
@@ -137,39 +150,14 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 10,
     backgroundColor: "white",
-  },
-  optionsRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginVertical: 8,
-    flexWrap: "wrap",
-  },
-  option: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 6,
-    backgroundColor: "white",
-  },
-  selectedOption: {
-    backgroundColor: "#166534",
-    borderColor: "#166534",
-  },
-  optionText: {
-    color: "#374151",
-    fontSize: 13,
-  },
-  selectedOptionText: {
-    color: "white",
-    fontWeight: "600",
+    marginBottom: 12, // separación extra entre campos
   },
   button: {
     backgroundColor: "#166534",
-    padding: 12,
+    padding: 14,
     borderRadius: 6,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 12,
   },
   buttonText: {
     color: "white",

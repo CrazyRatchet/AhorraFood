@@ -5,15 +5,32 @@ import {
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
+  Platform,
+  Alert,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, usePathname } from "expo-router";
 
 export default function TarjetasL() {
   const router = useRouter();
+  const pathname = usePathname();
   const { width } = useWindowDimensions();
   const isLargeScreen = width > 768;
+  const isIndex = pathname === "/";
 
+function handlePress(destino: "/" | "/fonda" | "/supermercado") {
+  const isIndex = pathname === "/";
+
+  if (isIndex) {
+    if (Platform.OS === "web") {
+      window.alert("Debes iniciar sesión para continuar.");
+    } else {
+      Alert.alert("Iniciar sesión", "Debes iniciar sesión para continuar.");
+    }
+  } else {
+    router.push(destino); 
+  }
+}
   return (
     <View style={styles.outer}>
       <View
@@ -23,11 +40,13 @@ export default function TarjetasL() {
         ]}
       >
         {/* Fonda y Restaurantes */}
-        <View
+        <TouchableOpacity
+          activeOpacity={0.9}
           style={[
             styles.card,
             { backgroundColor: "#2E7D32", marginRight: isLargeScreen ? 16 : 0 },
           ]}
+          onPress={() => handlePress("/fonda")}
         >
           <View style={styles.header}>
             <MaterialCommunityIcons
@@ -44,17 +63,20 @@ export default function TarjetasL() {
             <Text style={styles.statText}>📍 156 comercios</Text>
             <Text style={styles.statText}>📉 hasta 40% desc.</Text>
           </View>
-          <TouchableOpacity
-            style={styles.linkRow}
-            onPress={() => router.push("/fonda")}
-          >
-            <Text style={styles.linkText}>Ver Productos</Text>
-            <Ionicons name="arrow-forward" size={18} color="white" />
-          </TouchableOpacity>
-        </View>
+          {!isIndex && (
+            <View style={styles.linkRow}>
+              <Text style={styles.linkText}>Ver Productos</Text>
+              <Ionicons name="arrow-forward" size={18} color="white" />
+            </View>
+          )}
+        </TouchableOpacity>
 
         {/* Supermercados */}
-        <View style={[styles.card, { backgroundColor: "#1565C0" }]}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={[styles.card, { backgroundColor: "#1565C0" }]}
+          onPress={() => handlePress("/supermercado")}
+        >
           <View style={styles.header}>
             <MaterialCommunityIcons
               name="shopping-outline"
@@ -70,14 +92,13 @@ export default function TarjetasL() {
             <Text style={styles.statText}>🛒 23 tiendas</Text>
             <Text style={styles.statText}>📉 hasta 35% desc.</Text>
           </View>
-          <TouchableOpacity
-            style={styles.linkRow}
-            onPress={() => router.push("/supermercado")}
-          >
-            <Text style={styles.linkText}>Ver productos</Text>
-            <Ionicons name="arrow-forward" size={18} color="white" />
-          </TouchableOpacity>
-        </View>
+          {!isIndex && (
+            <View style={styles.linkRow}>
+              <Text style={styles.linkText}>Ver productos</Text>
+              <Ionicons name="arrow-forward" size={18} color="white" />
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
     </View>
   );

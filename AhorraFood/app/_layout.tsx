@@ -25,7 +25,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DefaultTheme : DefaultTheme}>
       <Stack
         screenOptions={{
-          headerShown: false, // 👈 Esto oculta esa barra negra arriba
+          headerShown: false, 
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

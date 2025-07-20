@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  useWindowDimensions,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 export default function RegisterStep2() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { width } = useWindowDimensions();
 
   const [form, setForm] = useState({
     telefono: "",
@@ -20,6 +22,9 @@ export default function RegisterStep2() {
     categoria: "",
     recogerLocal: false,
     envioDomicilio: false,
+    descripcion: "",
+    horaApertura: "",
+    horaCierre: "",
   });
 
   const handleChange = (name: string, value: string | boolean) => {
@@ -27,10 +32,22 @@ export default function RegisterStep2() {
   };
 
   const handleNext = () => {
+    const {
+      telefono,
+      direccion,
+      categoria,
+      descripcion,
+      horaApertura,
+      horaCierre,
+    } = form;
+
     if (
-      !form.telefono.trim() ||
-      !form.direccion.trim() ||
-      !form.categoria.trim() ||
+      !telefono.trim() ||
+      !direccion.trim() ||
+      !categoria.trim() ||
+      !descripcion.trim() ||
+      !horaApertura.trim() ||
+      !horaCierre.trim() ||
       (!form.recogerLocal && !form.envioDomicilio)
     ) {
       Alert.alert("Por favor completa todos los campos obligatorios y selecciona al menos un tipo de entrega.");
@@ -49,13 +66,16 @@ export default function RegisterStep2() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={styles.container}>
+    <View style={{ flex: 1, alignItems: "center", paddingVertical: 20 }}>
+      <ScrollView
+        contentContainerStyle={[styles.container, { width: width > 768 ? 800 : "100%" }]}
+      >
         <Text style={styles.title}>Registro de Comercio - Paso 2</Text>
         <Text style={styles.subtitle}>
           Información del negocio - Completa los datos de tu establecimiento
         </Text>
 
+        {/* Progreso */}
         <View style={styles.stepsContainer}>
           <View style={[styles.stepCircle, styles.completedStep]}>
             <Text style={styles.stepNumber}>1</Text>
@@ -89,51 +109,29 @@ export default function RegisterStep2() {
 
         <Text style={styles.label}>Categoría</Text>
         <View style={styles.optionsRow}>
-          <TouchableOpacity
-            style={[
-              styles.option,
-              form.categoria === "Fonda" && styles.selectedOption,
-            ]}
-            onPress={() => handleChange("categoria", "Fonda")}
-          >
-            <Text
-              style={[
-                styles.optionText,
-                form.categoria === "Fonda" && styles.selectedOptionText,
-              ]}
+          {["Fonda", "Supermercado"].map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={[styles.option, form.categoria === cat && styles.selectedOption]}
+              onPress={() => handleChange("categoria", cat)}
             >
-              Fonda / Restaurante
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.option,
-              form.categoria === "Supermercado" && styles.selectedOption,
-            ]}
-            onPress={() => handleChange("categoria", "Supermercado")}
-          >
-            <Text
-              style={[
-                styles.optionText,
-                form.categoria === "Supermercado" && styles.selectedOptionText,
-              ]}
-            >
-              Supermercado
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[
+                  styles.optionText,
+                  form.categoria === cat && styles.selectedOptionText,
+                ]}
+              >
+                {cat === "Fonda" ? "Fonda / Restaurante" : "Supermercado"}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <Text style={styles.label}>¿Qué tipo de entrega ofrece?</Text>
         <View style={styles.optionsRow}>
           <TouchableOpacity
-            style={[
-              styles.option,
-              form.recogerLocal && styles.selectedOption,
-            ]}
-            onPress={() =>
-              handleChange("recogerLocal", !form.recogerLocal)
-            }
+            style={[styles.option, form.recogerLocal && styles.selectedOption]}
+            onPress={() => handleChange("recogerLocal", !form.recogerLocal)}
           >
             <Text
               style={[
@@ -146,13 +144,8 @@ export default function RegisterStep2() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.option,
-              form.envioDomicilio && styles.selectedOption,
-            ]}
-            onPress={() =>
-              handleChange("envioDomicilio", !form.envioDomicilio)
-            }
+            style={[styles.option, form.envioDomicilio && styles.selectedOption]}
+            onPress={() => handleChange("envioDomicilio", !form.envioDomicilio)}
           >
             <Text
               style={[
@@ -164,6 +157,37 @@ export default function RegisterStep2() {
             </Text>
           </TouchableOpacity>
         </View>
+
+        <Text style={styles.label}>Descripción del Negocio</Text>
+        <TextInput
+          style={[styles.input, { height: 100, textAlignVertical: "top" }]}
+          multiline
+          placeholder="Describe tu negocio..."
+          value={form.descripcion}
+          onChangeText={(text) => handleChange("descripcion", text)}
+        />
+
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.label}>Hora de Apertura</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ej. 08:00"
+              value={form.horaApertura}
+              onChangeText={(text) => handleChange("horaApertura", text)}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.label}>Hora de Cierre</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ej. 18:00"
+              value={form.horaCierre}
+              onChangeText={(text) => handleChange("horaCierre", text)}
+            />
+          </View>
+        </View>
+
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.push("/registerC1")}>
@@ -180,10 +204,10 @@ export default function RegisterStep2() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    gap: 16,
     backgroundColor: "#f9fafb",
-    paddingBottom: 40,
+    padding: 20,
+    borderRadius: 10,
+    gap: 16,
   },
   title: {
     fontSize: 18,
@@ -199,9 +223,10 @@ const styles = StyleSheet.create({
   },
   stepsContainer: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+    alignItems: "center",
+    marginBottom: 10,
+    gap: 6,
   },
   stepCircle: {
     width: 28,
@@ -222,7 +247,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   stepLine: {
-    width: 40,
+    width: 30,
     height: 2,
     backgroundColor: "#d1d5db",
   },
@@ -230,7 +255,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     color: "#374151",
-    marginBottom: 4,
   },
   input: {
     borderWidth: 1,
@@ -238,12 +262,13 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 10,
     backgroundColor: "white",
+    marginBottom: 12,
   },
   optionsRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
     marginVertical: 8,
-    flexWrap: "wrap",
   },
   option: {
     paddingVertical: 10,
@@ -265,10 +290,10 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "600",
   },
+
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "100%",
     marginTop: 24,
     gap: 10,
   },

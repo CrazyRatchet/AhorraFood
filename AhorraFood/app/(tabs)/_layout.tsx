@@ -19,7 +19,7 @@ export default function TabsLayout() {
           headerShown: false,
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="registerU"
         options={{
           title: "Registro Usuario",
@@ -27,8 +27,8 @@ export default function TabsLayout() {
           headerShown: false,
         }}
       />
-       <Tabs.Screen
-        name="registerC"
+      <Tabs.Screen
+        name="registerC1"
         options={{
           title: "Registro Fonda",
           tabBarStyle: { display: "none" },
@@ -36,17 +36,17 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="carro"
+        name="registerC2"
         options={{
-          title: "Carrito",
+          title: "Registro Fonda",
           tabBarStyle: { display: "none" },
           headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="fonda"
+        name="registerC3"
         options={{
-          title: "Fonda",
+          title: "Registro Fonda",
           tabBarStyle: { display: "none" },
           headerShown: false,
         }}
@@ -59,9 +59,72 @@ export default function TabsLayout() {
           headerShown: false,
         }}
       />
-     
-     
-      <Tabs.Screen name="supermercado" options={{ title: "Supermercado" }} />
+
+      <Tabs.Screen
+        name="fonda"
+        options={{
+          title: "Fonda",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="supermercado"
+        options={{
+          title: "supermercado",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="vistaP"
+        options={{
+          title: "vista productos",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="carro"
+        options={{
+          title: "Carrito",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+
+      <Tabs.Screen
+        name="gestionC"
+        options={{
+          title: "gestion comercio",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="pedidosC"
+        options={{
+          title: "pedidos comercio",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="productosC"
+        options={{
+          title: "productos comercio",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+       <Tabs.Screen
+        name="agregarP"
+        options={{
+          title: "productos comercio",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 }
