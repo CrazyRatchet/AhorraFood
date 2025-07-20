@@ -125,6 +125,14 @@ export default function TabsLayout() {
           headerShown: false,
         }}
       />
+      <Tabs.Screen
+        name="dashboardComercio"
+        options={{
+          title: "Dashboard Comercio",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 }

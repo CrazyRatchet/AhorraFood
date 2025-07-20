@@ -1,0 +1,31 @@
+// Reglas de Firestore para AhorraFood
+// Copia y pega esto en Firebase Console → Firestore Database → Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Permitir que usuarios autenticados lean y escriban en la colección de productos
+    match /productos/{productId} {
+      allow read: if true;  // Cualquiera puede leer productos
+      allow write: if request.auth != null;  // Solo usuarios autenticados pueden escribir
+    }
+    
+    // Permitir que usuarios autenticados manejen su información de comercio
+    match /comercios/{comercioId} {
+      allow read: if true;  // Cualquiera puede leer info de comercios
+      allow write: if request.auth != null && request.auth.uid == comercioId;  // Solo el dueño puede escribir
+    }
+    
+    // Permitir que usuarios autenticados manejen su información de usuario
+    match /usuarios/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;  // Solo el dueño puede leer
+      allow write: if request.auth != null && request.auth.uid == userId;  // Solo el dueño puede escribir
+    }
+    
+    // Permitir acceso a pedidos para usuarios autenticados
+    match /pedidos/{pedidoId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useRouter,Link  } from "expo-router";
 import { loginUser } from "@/funciones/auth";
+import { detectUserType } from "@/funciones/userType";
 
 export default function LoginUserScreen() {
   const { width } = useWindowDimensions();
@@ -26,13 +27,21 @@ export default function LoginUserScreen() {
     try {
       await loginUser(email.trim(), password);
 
+      // Detectar tipo de usuario después del login
+      const userProfile = await detectUserType();
+      
       if (Platform.OS === "web") {
         window.alert("Sesión iniciada correctamente");
       } else {
         Alert.alert("Éxito", "Sesión iniciada correctamente");
       }
 
-      router.push("/principal");
+      // Redirigir según el tipo de usuario
+      if (userProfile.type === "comercio") {
+        router.push("/dashboardComercio");
+      } else {
+        router.push("/principal");
+      }
     } catch (error: any) {
       if (Platform.OS === "web") {
         window.alert(error.message);

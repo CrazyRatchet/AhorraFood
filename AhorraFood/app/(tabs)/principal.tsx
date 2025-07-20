@@ -1,4 +1,9 @@
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from "react-native";
+import { useRouter } from "expo-router";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../FirebaseConfig";
+import { detectUserType, UserProfile } from "../../funciones/userType";
 import Header from "@/components/Header";
 import TarjetasL from "@/components/tarjetasL";
 import TarjetasP from "@/components/tarjetasP";
@@ -109,6 +114,43 @@ const products = [
 ];
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const [userProfile, setUserProfile] = useState<UserProfile>({ type: null, data: null });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const profile = await detectUserType();
+          setUserProfile(profile);
+          
+          // Si es un comercio, redirigir al dashboard de comercio
+          if (profile.type === "comercio") {
+            router.replace("/dashboardComercio");
+            return;
+          }
+        } catch (error) {
+          console.error("Error detectando tipo de usuario:", error);
+        }
+      } else {
+        setUserProfile({ type: null, data: null });
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size="large" color="#166534" />
+        <Text style={{ marginTop: 16, color: "#6b7280" }}>Cargando...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <Header/>
@@ -139,6 +181,10 @@ export default function HomeScreen() {
   );
 }
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
   scrollContent: {
     padding: 16,
     paddingBottom: 32,

@@ -1,125 +1,271 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  Image, 
+  StyleSheet, 
+  ScrollView, 
+  Alert,
+  ActivityIndicator 
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useRouter } from "expo-router";
+import { subirProducto, validarProducto } from "../../funciones/productos";
+import Header from "@/components/Header";
+import Footer from "@/components/footer";
 
 export default function PublicarProducto() {
+  const router = useRouter();
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precioOriginal, setPrecioOriginal] = useState("");
   const [precioDescuento, setPrecioDescuento] = useState("");
   const [cantidad, setCantidad] = useState("1");
-  const [fecha, setFecha] = useState(new Date());
+  const [fecha, setFecha] = useState(new Date(Date.now() + 24 * 60 * 60 * 1000)); // Mañana por defecto
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [imagen, setImagen] = useState(null);
+  const [imagen, setImagen] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const seleccionarImagen = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Error', 'Se necesitan permisos para acceder a la galería');
+      return;
+    }
+
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 1,
+      aspect: [1, 1],
+      quality: 0.8,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
       setImagen(result.assets[0].uri);
     }
   };
 
+  const handlePublicar = async () => {
+    if (isSubmitting) return;
+
+    // Validar datos
+    const productData = {
+      nombre: nombre.trim(),
+      descripcion: descripcion.trim(),
+      precioOriginal: parseFloat(precioOriginal) || 0,
+      precioDescuento: precioDescuento && precioDescuento.trim() ? parseFloat(precioDescuento) : undefined,
+      cantidad: parseInt(cantidad) || 0,
+      fechaVencimiento: fecha,
+    };
+
+    const errores = validarProducto(productData);
+    
+    if (errores.length > 0) {
+      Alert.alert("Errores de validación", errores.join("\n"));
+      return;
+    }
+
+    if (!imagen) {
+      Alert.alert("Error", "Por favor selecciona una imagen para el producto");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const resultado = await subirProducto(productData, imagen);
+      
+      if (resultado.success) {
+        Alert.alert(
+          "¡Éxito!", 
+          "Tu producto ha sido publicado exitosamente",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                // Limpiar formulario
+                setNombre("");
+                setDescripcion("");
+                setPrecioOriginal("");
+                setPrecioDescuento("");
+                setCantidad("1");
+                setFecha(new Date(Date.now() + 24 * 60 * 60 * 1000));
+                setImagen(null);
+                
+                // Navegar a la lista de productos
+                router.push("/productosC");
+              }
+            }
+          ]
+        );
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "No se pudo publicar el producto");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancelar = () => {
+    Alert.alert(
+      "Cancelar",
+      "¿Estás seguro de que quieres cancelar? Se perderán todos los datos ingresados.",
+      [
+        { text: "No", style: "cancel" },
+        { 
+          text: "Sí", 
+          onPress: () => router.back(),
+          style: "destructive" 
+        }
+      ]
+    );
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Información Básica */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Información básica</Text>
-        <Text>Nombre del producto</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ej: Arroz con Pollo Panameño"
-          value={nombre}
-          onChangeText={setNombre}
-        />
-        <Text>Descripción</Text>
-        <TextInput
-          style={[styles.input, { height: 80 }]}
-          placeholder="Describe los ingredientes y características especiales del platillo..."
-          value={descripcion}
-          onChangeText={setDescripcion}
-          multiline
-        />
-      </View>
-
-      {/* Imagen */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Imagen del producto</Text>
-        <TouchableOpacity style={styles.imagePicker} onPress={seleccionarImagen}>
-          {imagen ? (
-            <Image source={{ uri: imagen }} style={{ width: 100, height: 100 }} />
-          ) : (
-            <Text style={{ color: '#64748b' }}>Seleccionar imagen</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      {/* Precios */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Precios y descuento</Text>
-        <View style={styles.row}>
+    <View style={{ flex: 1 }}>
+      <Header />
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Información Básica */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Información básica</Text>
+          <Text style={styles.label}>Nombre del producto *</Text>
           <TextInput
-            style={[styles.input, styles.flex1]}
-            placeholder="$ 0.00"
-            keyboardType="numeric"
-            value={precioOriginal}
-            onChangeText={setPrecioOriginal}
+            style={styles.input}
+            placeholder="Ej: Arroz con Pollo Panameño"
+            value={nombre}
+            onChangeText={setNombre}
+            editable={!isSubmitting}
           />
+          <Text style={styles.label}>Descripción *</Text>
           <TextInput
-            style={[styles.input, styles.flex1]}
-            placeholder="$ 0.00"
-            keyboardType="numeric"
-            value={precioDescuento}
-            onChangeText={setPrecioDescuento}
+            style={[styles.input, { height: 80 }]}
+            placeholder="Describe los ingredientes y características especiales del platillo..."
+            value={descripcion}
+            onChangeText={setDescripcion}
+            multiline
+            editable={!isSubmitting}
           />
         </View>
-      </View>
 
-      {/* Disponibilidad */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Disponibilidad</Text>
-        <View style={styles.row}>
-          <TextInput
-            style={[styles.input, styles.flex1]}
-            placeholder="1"
-            keyboardType="numeric"
-            value={cantidad}
-            onChangeText={setCantidad}
-          />
-          <TouchableOpacity
-            style={[styles.input, styles.flex1, { justifyContent: "center" }]}
-            onPress={() => setShowDatePicker(true)}
+        {/* Imagen */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Imagen del producto *</Text>
+          <TouchableOpacity 
+            style={styles.imagePicker} 
+            onPress={seleccionarImagen}
+            disabled={isSubmitting}
           >
-            <Text>{fecha.toLocaleDateString()}</Text>
+            {imagen ? (
+              <Image source={{ uri: imagen }} style={styles.previewImage} />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Text style={styles.imagePlaceholderText}>📷</Text>
+                <Text style={styles.imagePlaceholderText}>Seleccionar imagen</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
-        {showDatePicker && (
-          <DateTimePicker
-            value={fecha}
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowDatePicker(false);
-              if (selectedDate) setFecha(selectedDate);
-            }}
-          />
-        )}
-      </View>
 
-      {/* Botones */}
-      <View style={styles.row}>
-        <TouchableOpacity style={styles.btnPublicar}>
-          <Text style={{ color: "white" }}>Publicar producto</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.btnCancelar}>
-          <Text>Cancelar</Text>
-        </TouchableOpacity>
-      </View>
+        {/* Precios */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Precio *</Text>
+          <View style={styles.row}>
+            <View style={styles.flex1}>
+              <Text style={styles.label}>Precio normal *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="$ 0.00"
+                keyboardType="numeric"
+                value={precioOriginal}
+                onChangeText={setPrecioOriginal}
+                editable={!isSubmitting}
+              />
+            </View>
+            <View style={styles.flex1}>
+              <Text style={styles.label}>Precio con descuento (opcional)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="$ 0.00 (opcional)"
+                keyboardType="numeric"
+                value={precioDescuento}
+                onChangeText={setPrecioDescuento}
+                editable={!isSubmitting}
+              />
+            </View>
+          </View>
+          {precioOriginal && precioDescuento && parseFloat(precioDescuento) > 0 && parseFloat(precioOriginal) > parseFloat(precioDescuento) && (
+            <Text style={styles.discountText}>
+              Descuento: {Math.round(((parseFloat(precioOriginal) - parseFloat(precioDescuento)) / parseFloat(precioOriginal)) * 100)}%
+            </Text>
+          )}
+        </View>
+
+        {/* Disponibilidad */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Disponibilidad *</Text>
+          <View style={styles.row}>
+            <View style={styles.flex1}>
+              <Text style={styles.label}>Cantidad disponible</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="1"
+                keyboardType="numeric"
+                value={cantidad}
+                onChangeText={setCantidad}
+                editable={!isSubmitting}
+              />
+            </View>
+            <View style={styles.flex1}>
+              <Text style={styles.label}>Fecha de vencimiento</Text>
+              <TouchableOpacity
+                style={[styles.input, { justifyContent: "center" }]}
+                onPress={() => setShowDatePicker(true)}
+                disabled={isSubmitting}
+              >
+                <Text style={styles.dateText}>{fecha.toLocaleDateString()}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {showDatePicker && (
+            <DateTimePicker
+              value={fecha}
+              mode="date"
+              display="default"
+              minimumDate={new Date()}
+              onChange={(event, selectedDate) => {
+                setShowDatePicker(false);
+                if (selectedDate) setFecha(selectedDate);
+              }}
+            />
+          )}
+        </View>
+
+        {/* Botones */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={[styles.btnPublicar, isSubmitting && { opacity: 0.5 }]} 
+            onPress={handlePublicar}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator color="white" size="small" />
+            ) : (
+              <Text style={styles.btnPublicarText}>Publicar producto</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.btnCancelar} 
+            onPress={handleCancelar}
+            disabled={isSubmitting}
+          >
+            <Text style={styles.btnCancelarText}>Cancelar</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+      <Footer />
     </View>
   );
 }
@@ -144,42 +290,98 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 10,
+    color: "#1f2937",
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: 4,
+    marginTop: 8,
   },
   input: {
     backgroundColor: "#f1f5f9",
-    padding: 10,
+    padding: 12,
     borderRadius: 6,
     marginTop: 6,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    fontSize: 16,
   },
   imagePicker: {
     borderStyle: "dashed",
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: "#cbd5e1",
     borderRadius: 8,
+    height: 150,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+  },
+  previewImage: {
+    width: 120,
     height: 120,
+    borderRadius: 8,
+  },
+  imagePlaceholder: {
     justifyContent: "center",
     alignItems: "center",
   },
+  imagePlaceholderText: {
+    color: "#64748b",
+    fontSize: 16,
+    marginTop: 4,
+  },
   row: {
     flexDirection: "row",
-    gap: 10,
+    gap: 12,
   },
   flex1: {
     flex: 1,
   },
+  discountText: {
+    fontSize: 14,
+    color: "#059669",
+    fontWeight: "600",
+    marginTop: 8,
+    textAlign: "center",
+  },
+  dateText: {
+    fontSize: 16,
+    color: "#374151",
+  },
+  buttonContainer: {
+    gap: 12,
+    marginBottom: 20,
+    marginTop: 8,
+  },
   btnPublicar: {
     backgroundColor: "#15803d",
-    padding: 12,
-    borderRadius: 6,
-    flex: 1,
+    padding: 14,
+    borderRadius: 8,
     alignItems: "center",
-    marginRight: 6,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  btnPublicarText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
   },
   btnCancelar: {
     backgroundColor: "#f1f5f9",
-    padding: 12,
-    borderRadius: 6,
+    padding: 14,
+    borderRadius: 8,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+  },
+  btnCancelarText: {
+    color: "#374151",
+    fontSize: 16,
+    fontWeight: "500",
   },
 });

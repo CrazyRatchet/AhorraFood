@@ -2,7 +2,28 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Feather, FontAwesome } from "@expo/vector-icons";
 
-export default function ProductoCard({ producto, onEditar, onEliminar }) {
+interface Producto {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  precio_original: number;
+  precio_descuento: number;
+  porcentaje_descuento: number;
+  cantidad_disponible: number;
+  fecha_vencimiento: Date;
+  imagen_url: string;
+  estado: "activo" | "inactivo" | "agotado";
+  ventas: number;
+}
+
+interface ProductoCardProps {
+  producto: Producto;
+  onEditar: (producto: Producto) => void;
+  onEliminar: (productoId: string) => void;
+  onCambiarEstado: (productoId: string, nuevoEstado: "activo" | "inactivo") => void;
+}
+
+export default function ProductoCard({ producto, onEditar, onEliminar, onCambiarEstado }: ProductoCardProps) {
   return (
     <View style={styles.cardContainer}>
       {/* Encabezado */}
@@ -21,34 +42,38 @@ export default function ProductoCard({ producto, onEditar, onEliminar }) {
       <View style={styles.row}>
         {/* Producto */}
         <View style={[styles.flex2, styles.productoInfo]}>
-          <Image source={producto.image} style={styles.imagen} />
+          <Image 
+            source={{ uri: producto.imagen_url }} 
+            style={styles.imagen}
+            defaultSource={require("@/assets/images/logooo.png")} 
+          />
           <View>
             <Text style={styles.nombre}>{producto.nombre}</Text>
-            <Text style={styles.categoria}>{producto.categoria}</Text>
+            <Text style={styles.categoria} numberOfLines={1}>{producto.descripcion}</Text>
           </View>
         </View>
 
         {/* Precio */}
         <View style={styles.celda}>
-          <Text style={styles.precio}>${producto.precio}</Text>
-          <Text style={styles.tachado}>${producto.precioOriginal}</Text>
+          <Text style={styles.precio}>${producto.precio_descuento.toFixed(2)}</Text>
+          <Text style={styles.tachado}>${producto.precio_original.toFixed(2)}</Text>
         </View>
 
         {/* Descuento */}
         <View style={styles.celda}>
-          <Text style={styles.descuento}>-{producto.descuento}%</Text>
+          <Text style={styles.descuento}>-{producto.porcentaje_descuento}%</Text>
         </View>
 
         {/* Stock */}
         <View style={styles.celda}>
-          <Text style={[producto.stock === 0 && styles.stockRojo]}>
-            {producto.stock}
+          <Text style={[producto.cantidad_disponible === 0 && styles.stockRojo]}>
+            {producto.cantidad_disponible}
           </Text>
         </View>
 
         {/* Vendidos */}
         <View style={styles.celda}>
-          <Text>{producto.vendidos}</Text>
+          <Text>{producto.ventas}</Text>
         </View>
 
         {/* Estado */}
@@ -57,30 +82,42 @@ export default function ProductoCard({ producto, onEditar, onEliminar }) {
             style={[
               styles.estado,
               {
-                backgroundColor: producto.stock === 0 ? "#fee2e2" : "#dcfce7",
+                backgroundColor: producto.cantidad_disponible === 0 ? "#fee2e2" : 
+                                producto.estado === "activo" ? "#dcfce7" : "#f3f4f6",
               },
             ]}
           >
             <Text
               style={{
-                color: producto.stock === 0 ? "#b91c1c" : "#15803d",
+                color: producto.cantidad_disponible === 0 ? "#b91c1c" : 
+                      producto.estado === "activo" ? "#15803d" : "#6b7280",
                 fontWeight: "bold",
               }}
             >
-              {producto.stock === 0 ? "Agotado" : "Activo"}
+              {producto.cantidad_disponible === 0 ? "Agotado" : 
+               producto.estado === "activo" ? "Activo" : "Inactivo"}
             </Text>
           </View>
         </View>
 
         {/* Acciones */}
         <View style={styles.acciones}>
-          <TouchableOpacity onPress={onEditar}>
+          <TouchableOpacity onPress={() => onEditar(producto)}>
             <Feather name="edit" size={18} color="#0f172a" />
           </TouchableOpacity>
-          <TouchableOpacity>
-            <FontAwesome name="comments-o" size={18} color="#1e3a8a" />
+          <TouchableOpacity 
+            onPress={() => onCambiarEstado(
+              producto.id, 
+              producto.estado === "activo" ? "inactivo" : "activo"
+            )}
+          >
+            <Feather 
+              name={producto.estado === "activo" ? "eye-off" : "eye"} 
+              size={18} 
+              color="#1e3a8a" 
+            />
           </TouchableOpacity>
-          <TouchableOpacity onPress={onEliminar}>
+          <TouchableOpacity onPress={() => onEliminar(producto.id)}>
             <Feather name="trash" size={18} color="#dc2626" />
           </TouchableOpacity>
         </View>
