@@ -24,7 +24,10 @@ export default function DynamicHeader() {
   const isprincipal = pathname === "/principal";
   const isFonda = pathname === "/fonda";
   const isSupermercado = pathname === "/supermercado";
-   const isVistap = pathname === "/vistaP";
+  const isVistap = pathname === "/vistaP";
+  const isAgregarP = pathname == "/agregarP";
+  const isProductosC = pathname == "/productosC";
+  const isPedidosC = pathname == "/pedidosC";
 
   return (
     <View style={{ backgroundColor: "white", paddingTop: insets.top }}>
@@ -84,9 +87,7 @@ export default function DynamicHeader() {
                 style={styles.iconWithTextButton}
               >
                 <Ionicons name="cart-outline" size={18} color="#0f172a" />
-                {!isMobile && (
-                  <Text style={styles.iconLabel}>Carrito</Text>
-                )}
+                {!isMobile && <Text style={styles.iconLabel}>Carrito</Text>}
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -96,6 +97,15 @@ export default function DynamicHeader() {
                 <Ionicons name="person-outline" size={18} color="#0f172a" />
               </TouchableOpacity>
             </View>
+          )}
+          {(isPedidosC || isProductosC || isAgregarP) && (
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.push("/dashboardComercio")}
+            >
+              <Text style={styles.backIcon}>←</Text>
+              <Text style={styles.backText}>Volver a Gestión</Text>
+            </TouchableOpacity>
           )}
         </View>
       </View>
@@ -117,18 +127,36 @@ const styles = StyleSheet.create({
   left: {
     flexDirection: "row",
     alignItems: "center",
-    flexShrink: 0,
   },
   logo: {
-    width: 35,
-    height: 35,
+    width: 28,
+    height: 28,
     resizeMode: "contain",
     marginRight: 8,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#2E7D32",
+    color: "#15803d",
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: "#f9fafb",
+  },
+  backIcon: {
+    fontSize: 14,
+    marginRight: 6,
+    color: "#0f172a",
+  },
+  backText: {
+    fontSize: 14,
+    color: "#0f172a",
   },
   center: {
     flex: 1,
