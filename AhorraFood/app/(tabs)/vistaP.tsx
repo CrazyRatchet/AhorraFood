@@ -7,20 +7,52 @@ import {
   ScrollView,
 } from "react-native";
 import { FontAwesome, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import Header from "@/components/Header";
 import Reseña from "@/components/reseñas";
 import Footer from "@/components/footer";
 import InfoComercio from "@/components/infoComercio";
+import { Dimensions } from "react-native";
 
 export default function VistaP() {
   const { product } = useLocalSearchParams();
   const parsedProduct = JSON.parse(product as string);
-
+  const router = useRouter();
+  const isMobile = Dimensions.get("window").width < 768;
   return (
     <View style={{ flex: 1 }}>
       <Header />
+
       <ScrollView style={styles.container}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.push("/fonda")}
+        >
+          <Text style={styles.backIcon}>←</Text>
+          <Text style={styles.backText}>Volver al inicio</Text>
+        </TouchableOpacity>
+        {isMobile && (
+          <InfoComercio
+            comercio={{
+              nombre: "Fonda Doña Carmen",
+              direccion: "Vía España, Plaza Carolina",
+              telefono: "+507 6789-1234",
+              rating: 4.8,
+            }}
+            productosSimilares={[
+              {
+                nombre: "Bistec Encebollado",
+                precio: "3.85",
+                image: require("@/assets/images/bistec.jpg"),
+              },
+              {
+                nombre: "Pollo Guisado",
+                precio: "2.80",
+                image: require("@/assets/images/polloguisado.jpg"),
+              },
+            ]}
+          />
+        )}
         <View style={styles.mainContent}>
           <View style={styles.leftContent}>
             <View style={styles.card}>
@@ -104,9 +136,19 @@ export default function VistaP() {
                 )}
               </View>
 
-              <TouchableOpacity style={styles.button}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() =>
+                  router.push({
+                    pathname: "/carro",
+                    params: {
+                      product: JSON.stringify(parsedProduct),
+                    },
+                  })
+                }
+              >
                 <FontAwesome name="shopping-cart" color="#fff" />
-                <Text style={styles.buttonText}> Agregar al Carrito</Text>
+                <Text style={styles.buttonText}> Agregar al carrito</Text>
               </TouchableOpacity>
             </View>
 
@@ -288,5 +330,28 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     marginLeft: 6,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    gap: 6,
+    marginTop: 10,
+    marginLeft: 10,
+  },
+  backIcon: {
+    fontSize: 16,
+    color: "#0f172a",
+  },
+  backText: {
+    fontSize: 14,
+    color: "#0f172a",
+    fontWeight: "500",
   },
 });

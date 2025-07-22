@@ -10,7 +10,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import { useRouter,Link  } from "expo-router";
+import { useRouter, Link } from "expo-router";
 import { loginUser } from "@/funciones/auth";
 import { detectUserType } from "@/funciones/userType";
 
@@ -29,7 +29,7 @@ export default function LoginUserScreen() {
 
       // Detectar tipo de usuario después del login
       const userProfile = await detectUserType();
-      
+
       if (Platform.OS === "web") {
         window.alert("Sesión iniciada correctamente");
       } else {
@@ -55,11 +55,7 @@ export default function LoginUserScreen() {
 
   return (
     <View style={styles.container}>
-      <Link href="/gestionC" asChild>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.text}>Comercio</Text>
-      </TouchableOpacity>
-    </Link>
+      
       <Image
         source={require("@/assets/images/logooo.png")}
         style={styles.logo}
@@ -126,7 +122,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 10,
   },
-   button: {
+  button: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     backgroundColor: "#f1f5f9",

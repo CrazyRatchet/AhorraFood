@@ -1,8 +1,22 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Alert,
+  Platform,
+} from "react-native";
 import { FontAwesome, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { usePathname, useRouter } from "expo-router";
 
-export default function TarjetasP({ product, width }: { product: any; width: number }) {
+export default function TarjetasP({
+  product,
+  width,
+}: {
+  product: any;
+  width: number;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const isIndex = pathname === "/";
@@ -26,31 +40,42 @@ export default function TarjetasP({ product, width }: { product: any; width: num
     return stars;
   };
 
- const handlePress = () => {
-  if (isIndex) {
-    if (Platform.OS === "web") {
-      window.alert("Debes iniciar sesión para ver más detalles.");
+  const handlePress = () => {
+    if (isIndex) {
+      if (Platform.OS === "web") {
+        window.alert("Debes iniciar sesión para ver más detalles.");
+      } else {
+        Alert.alert(
+          "Iniciar sesión",
+          "Debes iniciar sesión para ver más detalles."
+        );
+      }
     } else {
-      Alert.alert("Iniciar sesión", "Debes iniciar sesión para ver más detalles.");
+      router.push({
+        pathname: "/vistaP",
+        params: { product: JSON.stringify(product) },
+      });
     }
-  } else {
-    router.push({
-      pathname: "/vistaP",
-      params: { product: JSON.stringify(product) },
-    });
-  }
-};
+  };
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.85} style={{ width }}>
+    <TouchableOpacity
+      onPress={handlePress}
+      activeOpacity={0.85}
+      style={{ width }}
+    >
       <View style={styles.card}>
         <View style={styles.imageContainer}>
-          <Image source={product.image} style={styles.image} resizeMode="cover" />
+          <Image
+            source={product.image}
+            style={styles.image}
+            resizeMode="cover"
+          />
           {product.discount && (
             <View style={styles.discountBadge}>
               <Text style={styles.badgeText}>{product.discount.trim()}</Text>
             </View>
           )}
-          {isIndex && product.top &&  (
+          {isIndex && product.top && (
             <View style={styles.topBadge}>
               <Text style={styles.badgeText}>★ TOP</Text>
             </View>
@@ -70,30 +95,54 @@ export default function TarjetasP({ product, width }: { product: any; width: num
         <Text style={styles.title}>{product.title.trim()}</Text>
         <View style={styles.ratingRow}>
           {renderStars(product.rating)}
-          <Text style={styles.ratingText}>{product.rating} ({product.reviews} reseñas)</Text>
+          <Text style={styles.ratingText}>
+            {product.rating} ({product.reviews} reseñas)
+          </Text>
         </View>
         {product.description && (
-          <Text style={styles.description} numberOfLines={2}>{product.description.trim()}</Text>
+          <Text style={styles.description} numberOfLines={2}>
+            {product.description.trim()}
+          </Text>
         )}
         <View style={styles.infoRow}>
-          <FontAwesome5 name="store" size={12} color="#cfd0d1" style={styles.icon} />
+          <FontAwesome5
+            name="store"
+            size={12}
+            color="#cfd0d1"
+            style={styles.icon}
+          />
           <Text style={styles.store}>{product.store.trim()}</Text>
         </View>
         {product.expirationDate && (
           <View style={styles.infoRow}>
-            <MaterialIcons name="event" size={12} color="#cfd0d1" style={styles.icon} />
+            <MaterialIcons
+              name="event"
+              size={12}
+              color="#cfd0d1"
+              style={styles.icon}
+            />
             <Text style={styles.store}>Vence: {product.expirationDate}</Text>
           </View>
         )}
         {product.deliveryType && (
           <View style={styles.infoRow}>
-            <MaterialIcons name="local-shipping" size={12} color="#cfd0d1" style={styles.icon} />
+            <MaterialIcons
+              name="local-shipping"
+              size={12}
+              color="#cfd0d1"
+              style={styles.icon}
+            />
             <Text style={styles.store}>{product.deliveryType}</Text>
           </View>
         )}
         {product.location && (
           <View style={styles.infoRow}>
-            <MaterialIcons name="location-on" size={12} color="#cfd0d1" style={styles.icon} />
+            <MaterialIcons
+              name="location-on"
+              size={12}
+              color="#cfd0d1"
+              style={styles.icon}
+            />
             <Text style={styles.store}>{product.location}</Text>
           </View>
         )}
@@ -103,7 +152,17 @@ export default function TarjetasP({ product, width }: { product: any; width: num
         </View>
 
         {!isIndex && (
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              router.push({
+                pathname: "/carro",
+                params: {
+                  product: JSON.stringify(product),
+                },
+              })
+            }
+          >
             <FontAwesome name="shopping-cart" color="#fff" />
             <Text style={styles.buttonText}> Agregar al carrito</Text>
           </TouchableOpacity>
@@ -141,7 +200,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     borderRadius: 4,
   },
-   topBadge: {
+  topBadge: {
     position: "absolute",
     top: 4,
     right: 4,

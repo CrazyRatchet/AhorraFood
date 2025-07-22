@@ -1,4 +1,12 @@
-import { StyleSheet, Text, View, ScrollView, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
+import { useRouter } from "expo-router";
 import Header from "@/components/Header";
 import TarjetasP from "@/components/tarjetasP";
 import Filtro from "@/components/filtro";
@@ -13,7 +21,7 @@ const usableWidth =
 
 const cardWidth =
   screenWidth >= 768 ? usableWidth / 3 - 20 : usableWidth / 2 - 20;
-
+const router = useRouter();
 const products = [
   {
     title: "Tomates Frescos",
@@ -32,8 +40,7 @@ const products = [
   },
   {
     title: "Pan Integral",
-    description:
-      "Pan integral, rico en fibra y perfecto para el desayuno.",
+    description: "Pan integral, rico en fibra y perfecto para el desayuno.",
     expirationDate: "30-7-2025",
     image: require("@/assets/images/pan.jpg"),
     rating: 4.7,
@@ -47,8 +54,7 @@ const products = [
   },
   {
     title: "Manzanas Rojas",
-    description:
-      "Manzanas rojas dulces.",
+    description: "Manzanas rojas dulces.",
     expirationDate: "2024-06-2025",
     image: require("@/assets/images/manzana.jpg"),
     rating: 4.7,
@@ -79,7 +85,15 @@ export default function HomeScreen() {
   return (
     <View style={{ flex: 1 }}>
       <Header />
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.push("/principal")}
+        >
+          <Text style={styles.backIcon}>←</Text>
+          <Text style={styles.backText}>Volver al inicio</Text>
+        </TouchableOpacity>
         <View style={styles.mainContainer}>
           <View style={styles.content}>
             <Text style={styles.welcomeTitle}>Supermercados</Text>
@@ -138,6 +152,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#1e293b",
     marginBottom: 4,
+    marginTop: 10,
   },
   welcomeSubtitle: {
     fontSize: 14,
@@ -164,5 +179,27 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     maxWidth: 1100,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    gap: 6,
+    marginTop: 5,
+  },
+  backIcon: {
+    fontSize: 16,
+    color: "#0f172a",
+  },
+  backText: {
+    fontSize: 14,
+    color: "#0f172a",
+    fontWeight: "500",
   },
 });

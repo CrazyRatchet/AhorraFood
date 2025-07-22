@@ -1,13 +1,18 @@
-import { StyleSheet, Text, View, ScrollView, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import Header from "@/components/Header";
 import TarjetasP from "@/components/tarjetasP";
 import Filtro from "@/components/filtro";
 import Footer from "@/components/footer";
-
+import { useRouter } from "expo-router";
 const screenWidth = Dimensions.get("window").width;
 const isMobile = screenWidth < 768;
-
-
 
 const maxContentWidth = 1100;
 const usableWidth =
@@ -15,9 +20,7 @@ const usableWidth =
 
 const cardWidth =
   screenWidth >= 768 ? usableWidth / 3 - 20 : usableWidth / 2 - 20;
-
-
-
+const router = useRouter();
 const products = [
   {
     title: "Arroz con Pollo",
@@ -87,14 +90,21 @@ export default function HomeScreen() {
   return (
     <View style={{ flex: 1 }}>
       <Header />
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.push("/principal")}
+        >
+          <Text style={styles.backIcon}>←</Text>
+          <Text style={styles.backText}>Volver al inicio</Text>
+        </TouchableOpacity>
         <View style={styles.mainContainer}>
           <View style={styles.content}>
-            <Text style={styles.welcomeTitle}>
-              Fondas/Restaurantes
-            </Text>
+            <Text style={styles.welcomeTitle}>Fondas/Restaurantes</Text>
             <Text style={styles.welcomeSubtitle}>
-              Evita el desperdicio; disfruta platos caseros que aún pueden ser tuyos.
+              Evita el desperdicio; disfruta platos caseros que aún pueden ser
+              tuyos.
             </Text>
 
             {/* Mostrar el filtro debajo del título solo en móvil */}
@@ -148,6 +158,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#1e293b",
     marginBottom: 4,
+    marginTop:10
   },
   welcomeSubtitle: {
     fontSize: 14,
@@ -170,9 +181,31 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   grid: {
-   flexDirection: "row",
+    flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
     maxWidth: 1100,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    gap: 6,
+    marginTop: 5,
+  },
+  backIcon: {
+    fontSize: 16,
+    color: "#0f172a",
+  },
+  backText: {
+    fontSize: 14,
+    color: "#0f172a",
+    fontWeight: "500",
   },
 });

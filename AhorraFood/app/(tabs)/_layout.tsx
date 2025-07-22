@@ -133,6 +133,30 @@ export default function TabsLayout() {
           headerShown: false,
         }}
       />
+       <Tabs.Screen
+        name="pago"
+        options={{
+          title: "Pago",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="confirmacionP"
+        options={{
+          title: "Confirmacion Pago",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+        <Tabs.Screen
+        name="estadoP"
+        options={{
+          title: "Estado Pedido",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 }
