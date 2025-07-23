@@ -31,6 +31,21 @@ export default function RegisterStep2() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleTimeChange = (name: string, value: string) => {
+    // Formatear automáticamente la hora mientras escribe
+    let formattedValue = value.replace(/[^0-9]/g, ''); // Solo números
+    
+    if (formattedValue.length >= 3) {
+      formattedValue = formattedValue.substring(0, 2) + ':' + formattedValue.substring(2, 4);
+    }
+    
+    if (formattedValue.length > 5) {
+      formattedValue = formattedValue.substring(0, 5);
+    }
+    
+    setForm((prev) => ({ ...prev, [name]: formattedValue }));
+  };
+
   const handleNext = () => {
     const {
       telefono,
@@ -41,16 +56,69 @@ export default function RegisterStep2() {
       horaCierre,
     } = form;
 
-    if (
-      !telefono.trim() ||
-      !direccion.trim() ||
-      !categoria.trim() ||
-      !descripcion.trim() ||
-      !horaApertura.trim() ||
-      !horaCierre.trim() ||
-      (!form.recogerLocal && !form.envioDomicilio)
-    ) {
-      Alert.alert("Por favor completa todos los campos obligatorios y selecciona al menos un tipo de entrega.");
+    // Validaciones específicas
+    if (!telefono.trim()) {
+      Alert.alert("Error", "El teléfono es obligatorio");
+      return;
+    }
+
+    if (!direccion.trim()) {
+      Alert.alert("Error", "La dirección es obligatoria");
+      return;
+    }
+
+    if (!categoria.trim()) {
+      Alert.alert("Error", "Selecciona una categoría");
+      return;
+    }
+
+    if (!descripcion.trim()) {
+      Alert.alert("Error", "La descripción del negocio es obligatoria");
+      return;
+    }
+
+    if (!horaApertura.trim()) {
+      Alert.alert("Error", "La hora de apertura es obligatoria");
+      return;
+    }
+
+    if (!horaCierre.trim()) {
+      Alert.alert("Error", "La hora de cierre es obligatoria");
+      return;
+    }
+
+    if (!form.recogerLocal && !form.envioDomicilio) {
+      Alert.alert("Error", "Selecciona al menos un tipo de entrega");
+      return;
+    }
+
+    // Validar formato de horas (HH:MM)
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(horaApertura)) {
+      Alert.alert("Error", "Formato de hora de apertura inválido. Usa formato HH:MM (ej. 08:00)");
+      return;
+    }
+
+    if (!timeRegex.test(horaCierre)) {
+      Alert.alert("Error", "Formato de hora de cierre inválido. Usa formato HH:MM (ej. 18:00)");
+      return;
+    }
+
+    // Validar que la hora de cierre sea después de la apertura
+    const [aperturaHora, aperturaMin] = horaApertura.split(':').map(Number);
+    const [cierreHora, cierreMin] = horaCierre.split(':').map(Number);
+    const aperturaMinutos = aperturaHora * 60 + aperturaMin;
+    const cierreMinutos = cierreHora * 60 + cierreMin;
+
+    if (cierreMinutos <= aperturaMinutos) {
+      Alert.alert("Error", "La hora de cierre debe ser después de la hora de apertura");
+      return;
+    }
+
+    // Validar formato de teléfono (básico para Panamá)
+    const phoneRegex = /^[0-9-\s]{8,15}$/;
+    if (!phoneRegex.test(telefono)) {
+      Alert.alert("Error", "Formato de teléfono inválido");
       return;
     }
 
@@ -58,7 +126,12 @@ export default function RegisterStep2() {
       pathname: "/registerC3",
       params: {
         ...params,
-        ...form,
+        telefono,
+        direccion,
+        categoria,
+        descripcion,
+        horaApertura,
+        horaCierre,
         recogerLocal: form.recogerLocal.toString(),
         envioDomicilio: form.envioDomicilio.toString(),
       },
@@ -90,24 +163,24 @@ export default function RegisterStep2() {
           </View>
         </View>
 
-        <Text style={styles.label}>Teléfono</Text>
+        <Text style={styles.label}>Teléfono *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Ej. 6123-4567"
+          placeholder="Ej. 6123-4567 o 507-6123-4567"
           keyboardType="phone-pad"
           value={form.telefono}
           onChangeText={(text) => handleChange("telefono", text)}
         />
 
-        <Text style={styles.label}>Dirección</Text>
+        <Text style={styles.label}>Dirección Completa *</Text>
         <TextInput
           style={styles.input}
-          placeholder="Dirección exacta del negocio"
+          placeholder="Dirección exacta del negocio (calle, edificio, etc.)"
           value={form.direccion}
           onChangeText={(text) => handleChange("direccion", text)}
         />
 
-        <Text style={styles.label}>Categoría</Text>
+        <Text style={styles.label}>Categoría *</Text>
         <View style={styles.optionsRow}>
           {["Fonda", "Supermercado"].map((cat) => (
             <TouchableOpacity
@@ -127,7 +200,7 @@ export default function RegisterStep2() {
           ))}
         </View>
 
-        <Text style={styles.label}>¿Qué tipo de entrega ofrece?</Text>
+        <Text style={styles.label}>¿Qué tipo de entrega ofrece? *</Text>
         <View style={styles.optionsRow}>
           <TouchableOpacity
             style={[styles.option, form.recogerLocal && styles.selectedOption]}
@@ -158,32 +231,36 @@ export default function RegisterStep2() {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.label}>Descripción del Negocio</Text>
+        <Text style={styles.label}>Descripción del Negocio *</Text>
         <TextInput
           style={[styles.input, { height: 100, textAlignVertical: "top" }]}
           multiline
-          placeholder="Describe tu negocio..."
+          placeholder="Describe tu negocio: tipo de comida, especialidades, etc."
           value={form.descripcion}
           onChangeText={(text) => handleChange("descripcion", text)}
         />
 
         <View style={{ flexDirection: "row", gap: 10 }}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.label}>Hora de Apertura</Text>
+            <Text style={styles.label}>Hora de Apertura *</Text>
             <TextInput
               style={styles.input}
-              placeholder="Ej. 08:00"
+              placeholder="08:00"
               value={form.horaApertura}
-              onChangeText={(text) => handleChange("horaApertura", text)}
+              onChangeText={(text) => handleTimeChange("horaApertura", text)}
+              keyboardType="numeric"
+              maxLength={5}
             />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.label}>Hora de Cierre</Text>
+            <Text style={styles.label}>Hora de Cierre *</Text>
             <TextInput
               style={styles.input}
-              placeholder="Ej. 18:00"
+              placeholder="18:00"
               value={form.horaCierre}
-              onChangeText={(text) => handleChange("horaCierre", text)}
+              onChangeText={(text) => handleTimeChange("horaCierre", text)}
+              keyboardType="numeric"
+              maxLength={5}
             />
           </View>
         </View>

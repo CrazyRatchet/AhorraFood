@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../FirebaseConfig";
 import { detectUserType, UserProfile } from "../../funciones/userType";
+import { obtenerProductosMejorValorados, obtenerTodosLosProductos, ProductoPublico } from "../../funciones/productosPublicos";
 import Header from "@/components/Header";
 import TarjetasL from "@/components/tarjetasL";
 import TarjetasP from "@/components/tarjetasP";
@@ -20,103 +21,12 @@ const usableWidth =
 const cardWidth =
   screenWidth >= 768 ? usableWidth / 3 - 20 : usableWidth / 2 - 20;
 
-const products = [
-  {
-    title: "Arroz con Pollo",
-    description: "Tradicional arroz con pollo acompañado de frijoles negros.",
-    expirationDate: "2024-06-Jun 2025",
-    deliveryType: "Recogida en local",
-    image: require("@/assets/images/arroz.jpg"),
-    rating: 4.9,
-    reviews: 127,
-    store: "Fonda Doña Carmen",
-    location: "Vía España",
-    price: "2.70",
-    oldPrice: "4.50",
-    discount: "40%",
-    top: true,
-  },
-  {
-    title: "Tomates Frescos",
-    description: "Tomates rojos frescos de calidad premium.",
-    expirationDate: "2024-07-10",
-    deliveryType: "Envío a domicilio",
-    image: require("@/assets/images/tomates.jpg"),
-    rating: 4.8,
-    reviews: 89,
-    store: "Super Fresco Central",
-    location: "Vía España",
-    price: "2.45",
-    oldPrice: "3.50",
-    discount: "30%",
-    top: true,
-  },
-  {
-    title: "Pescado Frito",
-    description: "Pescado entero frito con guarnición de patacones.",
-    expirationDate: "2024-06-20",
-    deliveryType: "Recogida en local",
-    image: require("@/assets/images/pescado.jpg"),
-    rating: 4.7,
-    reviews: 95,
-    store: "Fonda La Maria",
-    location: "Casco Viejo",
-    price: "4.2",
-    oldPrice: "6",
-    discount: "30%",
-    top: true,
-  },
-  {
-    title: "Pan Integral",
-    description: "Pan integral fresco y saludable, ideal para el desayuno.",
-    expirationDate: "2024-06-25",
-    deliveryType: "Envío a domicilio",
-    image: require("@/assets/images/pan.jpg"),
-    rating: 4.6,
-    reviews: 73,
-    store: "Super San José",
-    location: "El Cangrejo",
-    price: "1.58",
-    oldPrice: "1.25",
-    discount: "30%",
-    top: true,
-  },
-  {
-    title: "Pollo Guisado Criollo",
-    description: "Pollo guisado estilo criollo con arroz blanco y vegetales.",
-    expirationDate: "2024-06-30",
-    deliveryType: "Envío a domicilio",
-    image: require("@/assets/images/polloguisado.jpg"),
-    rating: 4.5,
-    reviews: 68,
-    store: "Fonda Mi Ranchito",
-    location: "Rio Abajo",
-    price: "2.8",
-    oldPrice: "4",
-    discount: "30%",
-    top: true,
-  },
-  {
-    title: "Manzanas Rojas",
-    description: "Manzanas rojas jugosas, ideales para snacks saludables.",
-    expirationDate: "2024-07-01",
-    deliveryType: "Recogida en local",
-    image: require("@/assets/images/manzana.jpg"),
-    rating: 4.4,
-    reviews: 56,
-    store: "Super",
-    location: "Casco Viejo",
-    price: "3.36",
-    oldPrice: "4.8",
-    discount: "30%",
-    top: true,
-  },
-];
-
 export default function HomeScreen() {
   const router = useRouter();
   const [userProfile, setUserProfile] = useState<UserProfile>({ type: null, data: null });
+  const [productos, setProductos] = useState<ProductoPublico[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -142,6 +52,57 @@ export default function HomeScreen() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    cargarProductos();
+  }, []);
+
+  const cargarProductos = async () => {
+    try {
+      console.log("🔄 Cargando productos para página principal...");
+      
+      // Usar función super simple para debug
+      const productosData = await obtenerTodosLosProductos();
+      console.log("📦 Productos obtenidos:", productosData.length);
+      
+      // Tomar solo los primeros 6 para la página principal
+      const productosLimitados = productosData.slice(0, 6);
+      setProductos(productosLimitados);
+      
+    } catch (error: any) {
+      console.error("❌ Error cargando productos:", error);
+      console.error("❌ Detalles del error:", error.stack);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await cargarProductos();
+    setRefreshing(false);
+  };
+
+  const convertirProductoParaTarjeta = (producto: ProductoPublico) => {
+    return {
+      id: producto.id,
+      title: producto.nombre,
+      description: producto.descripcion,
+      expirationDate: producto.fecha_vencimiento.toLocaleDateString(),
+      deliveryType: producto.tipo_entrega?.recogida && producto.tipo_entrega?.domicilio 
+        ? "Recogida y Envío" 
+        : producto.tipo_entrega?.domicilio 
+          ? "Envío a domicilio" 
+          : "Recogida en local",
+      image: producto.imagen_url ? { uri: producto.imagen_url } : require("@/assets/images/arroz.jpg"),
+      rating: 4.5, // Por ahora fijo, se puede implementar sistema de ratings después
+      reviews: producto.visualizaciones || 0,
+      store: producto.comercio_nombre || "Comercio",
+      location: producto.comercio_direccion || "Panamá",
+      price: producto.precio_descuento.toFixed(2),
+      oldPrice: producto.precio_original.toFixed(2),
+      discount: `${producto.porcentaje_descuento}%`,
+      top: producto.porcentaje_descuento > 0,
+    };
+  };
+
   if (loading) {
     return (
       <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
@@ -154,7 +115,12 @@ export default function HomeScreen() {
   return (
     <View style={{ flex: 1 }}>
       <Header/>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#166534"]} />
+        }
+      >
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeTitle}>¡Bienvenido a AhorraFood!</Text>
           <Text style={styles.welcomeSubtitle}>
@@ -162,19 +128,33 @@ export default function HomeScreen() {
             reducir el desperdicio alimentario
           </Text>
         </View>
+        
         <TarjetasL/>
+        
         <Text style={styles.heading}>Productos Mejor Valorados</Text>
         <Text style={styles.subheading}>
           Los favoritos de nuestros usuarios, tanto de fondas como supermercados
         </Text>
 
-        <View style={styles.grid}>
-          {products.map((product, idx) => (
-            <TarjetasP key={idx} product={product} width={cardWidth}/>
-          ))}
-        </View>
-         <Estadisticas/>
+        {productos.length > 0 ? (
+          <View style={styles.grid}>
+            {productos.map((producto) => (
+              <TarjetasP 
+                key={producto.id} 
+                product={convertirProductoParaTarjeta(producto)} 
+                width={cardWidth}
+              />
+            ))}
+          </View>
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+              {loading ? "Cargando productos..." : "No hay productos disponibles en este momento"}
+            </Text>
+          </View>
+        )}
         
+        <Estadisticas/>
       </ScrollView>
       <Footer/>
     </View>
@@ -190,7 +170,6 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     alignItems: "center",
   },
-
   welcomeContainer: {
     marginBottom: 20,
     alignItems: "center",
@@ -211,8 +190,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 4,
     textAlign: "center",
-    marginTop:5,
-    
+    marginTop: 5,
   },
   subheading: {
     color: "#6b7280",
@@ -225,5 +203,16 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     maxWidth: 1100,
+  },
+  emptyContainer: {
+    padding: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#6b7280",
+    textAlign: "center",
   },
 });

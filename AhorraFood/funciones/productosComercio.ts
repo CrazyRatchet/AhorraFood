@@ -37,17 +37,19 @@ export const obtenerProductosComercio = async (): Promise<Producto[]> => {
     }
 
     const comercioId = auth.currentUser.uid;
+    console.log("🔍 Buscando productos para comercio:", comercioId);
     
     const q = query(
       collection(db, "productos"),
-      where("comercio_id", "==", comercioId),
-      orderBy("fecha_creacion", "desc")
+      where("comercio_id", "==", comercioId)
     );
 
     const querySnapshot = await getDocs(q);
+    console.log("📊 Documentos encontrados:", querySnapshot.docs.length);
     
-    return querySnapshot.docs.map(doc => {
+    const productos = querySnapshot.docs.map(doc => {
       const data = doc.data();
+      console.log("📄 Producto encontrado:", doc.id, data.nombre);
       return {
         id: doc.id,
         ...data,
@@ -63,8 +65,14 @@ export const obtenerProductosComercio = async (): Promise<Producto[]> => {
       } as Producto;
     });
 
+    // Ordenar por fecha de creación manualmente
+    productos.sort((a, b) => b.fecha_creacion.getTime() - a.fecha_creacion.getTime());
+    
+    console.log("✅ Productos procesados:", productos.length);
+    return productos;
+
   } catch (error: any) {
-    console.error("Error obteniendo productos:", error);
+    console.error("❌ Error obteniendo productos:", error);
     throw new Error(error.message || "Error al cargar productos");
   }
 };
