@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "100%",
-    maxWidth: 600, // este valor debe coincidir con el de la tarjeta
+    maxWidth: 600,
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,

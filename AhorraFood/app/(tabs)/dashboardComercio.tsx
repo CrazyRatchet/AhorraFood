@@ -20,7 +20,10 @@ import Footer from "@/components/footer";
 
 export default function DashboardComercio() {
   const router = useRouter();
-  const [userProfile, setUserProfile] = useState<UserProfile>({ type: null, data: null });
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    type: null,
+    data: null,
+  });
   const [stats, setStats] = useState({
     totalProductos: 0,
     productosActivos: 0,
@@ -55,12 +58,15 @@ export default function DashboardComercio() {
   const loadStats = async () => {
     try {
       const productos = await obtenerProductosComercio();
-      
+
       setStats({
         totalProductos: productos.length,
-        productosActivos: productos.filter(p => p.estado === "activo").length,
+        productosActivos: productos.filter((p) => p.estado === "activo").length,
         ventasHoy: productos.reduce((sum, p) => sum + p.ventas, 0),
-        ingresosMes: productos.reduce((sum, p) => sum + (p.ventas * p.precio_descuento), 0),
+        ingresosMes: productos.reduce(
+          (sum, p) => sum + p.ventas * p.precio_descuento,
+          0
+        ),
       });
     } catch (error) {
       console.error("Error cargando estadísticas:", error);
@@ -91,7 +97,12 @@ export default function DashboardComercio() {
 
   if (loading) {
     return (
-      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color="#166534" />
         <Text style={{ marginTop: 16, color: "#6b7280" }}>Cargando...</Text>
       </View>
@@ -100,9 +111,16 @@ export default function DashboardComercio() {
 
   if (userProfile.type !== "comercio") {
     return (
-      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <Text style={{ fontSize: 18, color: "#ef4444" }}>Acceso denegado</Text>
-        <Text style={{ color: "#6b7280", marginTop: 8 }}>Esta área es solo para comercios</Text>
+        <Text style={{ color: "#6b7280", marginTop: 8 }}>
+          Esta área es solo para comercios
+        </Text>
       </View>
     );
   }
@@ -115,8 +133,12 @@ export default function DashboardComercio() {
         <View style={styles.dashboardHeader}>
           <View>
             <Text style={styles.welcomeText}>¡Bienvenido!</Text>
-            <Text style={styles.businessName}>{userProfile.data?.nombre || "Mi Comercio"}</Text>
-            <Text style={styles.ownerName}>Propietario: {userProfile.data?.propietario}</Text>
+            <Text style={styles.businessName}>
+              {userProfile.data?.nombre || "Mi Comercio"}
+            </Text>
+            <Text style={styles.ownerName}>
+              Propietario: {userProfile.data?.propietario}
+            </Text>
           </View>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Feather name="log-out" size={20} color="#ef4444" />
@@ -132,22 +154,24 @@ export default function DashboardComercio() {
               <Text style={styles.statNumber}>{stats.totalProductos}</Text>
               <Text style={styles.statLabel}>Total Productos</Text>
             </View>
-            
+
             <View style={[styles.statCard, { backgroundColor: "#dcfce7" }]}>
               <Feather name="eye" size={24} color="#166534" />
               <Text style={styles.statNumber}>{stats.productosActivos}</Text>
               <Text style={styles.statLabel}>Activos</Text>
             </View>
-            
+
             <View style={[styles.statCard, { backgroundColor: "#fef3c7" }]}>
               <FontAwesome5 name="shopping-cart" size={20} color="#d97706" />
               <Text style={styles.statNumber}>{stats.ventasHoy}</Text>
               <Text style={styles.statLabel}>Ventas</Text>
             </View>
-            
+
             <View style={[styles.statCard, { backgroundColor: "#fce7f3" }]}>
               <FontAwesome5 name="dollar-sign" size={20} color="#be185d" />
-              <Text style={styles.statNumber}>${stats.ingresosMes.toFixed(2)}</Text>
+              <Text style={styles.statNumber}>
+                ${stats.ingresosMes.toFixed(2)}
+              </Text>
               <Text style={styles.statLabel}>Ingresos</Text>
             </View>
           </View>
@@ -156,80 +180,48 @@ export default function DashboardComercio() {
         {/* Acciones Principales */}
         <View style={styles.actionsContainer}>
           <Text style={styles.sectionTitle}>Gestión de Productos</Text>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: "#166534" }]}
             onPress={() => router.push("/agregarP")}
           >
             <Feather name="plus" size={24} color="white" />
             <View style={styles.actionTextContainer}>
               <Text style={styles.actionTitle}>Agregar Producto</Text>
-              <Text style={styles.actionSubtitle}>Publica un nuevo producto con descuento</Text>
+              <Text style={styles.actionSubtitle}>
+                Publica un nuevo producto con descuento
+              </Text>
             </View>
             <Feather name="chevron-right" size={20} color="white" />
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: "#1d4ed8" }]}
             onPress={() => router.push("/productosC")}
           >
             <MaterialIcons name="inventory-2" size={24} color="white" />
             <View style={styles.actionTextContainer}>
               <Text style={styles.actionTitle}>Mis Productos</Text>
-              <Text style={styles.actionSubtitle}>Ver, editar y gestionar productos</Text>
+              <Text style={styles.actionSubtitle}>
+                Ver, editar y gestionar productos
+              </Text>
             </View>
             <Feather name="chevron-right" size={20} color="white" />
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: "#dc2626" }]}
             onPress={() => router.push("/pedidosC")}
           >
             <Feather name="shopping-bag" size={24} color="white" />
             <View style={styles.actionTextContainer}>
               <Text style={styles.actionTitle}>Pedidos</Text>
-              <Text style={styles.actionSubtitle}>Gestionar pedidos recibidos</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="white" />
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: "#7c3aed" }]}
-            onPress={() => router.push("/gestionC")}
-          >
-            <Feather name="settings" size={24} color="white" />
-            <View style={styles.actionTextContainer}>
-              <Text style={styles.actionTitle}>Configuración</Text>
-              <Text style={styles.actionSubtitle}>Horarios, información del negocio</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Estado del Comercio */}
-        <View style={styles.statusContainer}>
-          <Text style={styles.sectionTitle}>Estado del Comercio</Text>
-          <View style={styles.statusCard}>
-            <View style={styles.statusIndicator}>
-              <View 
-                style={[
-                  styles.statusDot, 
-                  { backgroundColor: userProfile.data?.estado === "activo" ? "#10b981" : "#f59e0b" }
-                ]} 
-              />
-              <Text style={styles.statusText}>
-                {userProfile.data?.estado === "activo" ? "Comercio Activo" : "Pendiente de Aprobación"}
+              <Text style={styles.actionSubtitle}>
+                Gestionar pedidos recibidos
               </Text>
             </View>
-            <Text style={styles.categoryText}>
-              Categoría: {userProfile.data?.categoria}
-            </Text>
-            <Text style={styles.deliveryText}>
-              Entrega: {userProfile.data?.tipo_entrega?.recogida ? "Recogida" : ""} 
-              {userProfile.data?.tipo_entrega?.recogida && userProfile.data?.tipo_entrega?.domicilio ? " y " : ""}
-              {userProfile.data?.tipo_entrega?.domicilio ? "Domicilio" : ""}
-            </Text>
-          </View>
+            <Feather name="chevron-right" size={20} color="white" />
+          </TouchableOpacity>
         </View>
       </ScrollView>
       <Footer />

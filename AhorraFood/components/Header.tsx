@@ -79,7 +79,6 @@ export default function DynamicHeader() {
               </TouchableOpacity>
             </>
           )}
-
           {(isprincipal || isFonda || isSupermercado || isVistap) && (
             <View style={styles.navButtonsContainer}>
               <TouchableOpacity
@@ -91,13 +90,15 @@ export default function DynamicHeader() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => router.push("/perfil")}
-                style={styles.iconButtonOnly}
+                onPress={() => router.push("/historialP")}
+                style={styles.iconWithTextButton}
               >
-                <Ionicons name="person-outline" size={18} color="#0f172a" />
+                <Ionicons name="cube-outline" size={18} color="#0f172a" />
+                {!isMobile && <Text style={styles.iconLabel}>Mis Pedidos</Text>}
               </TouchableOpacity>
             </View>
           )}
+
           {(isPedidosC || isProductosC || isAgregarP) && (
             <TouchableOpacity
               style={styles.backButton}
@@ -209,6 +210,7 @@ const styles = StyleSheet.create({
     color: "#0f172a",
     marginLeft: 6,
   },
+
   iconButtonOnly: {
     borderWidth: 1,
     borderColor: "#e2e8f0",
@@ -216,6 +218,7 @@ const styles = StyleSheet.create({
     padding: 8,
     backgroundColor: "white",
   },
+
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",

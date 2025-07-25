@@ -26,7 +26,7 @@ export default function VistaP() {
       <ScrollView style={styles.container}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.push("/fonda")}
+          onPress={() => router.push("/principal")}
         >
           <Text style={styles.backIcon}>←</Text>
           <Text style={styles.backText}>Volver al inicio</Text>

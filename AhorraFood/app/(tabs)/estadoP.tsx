@@ -8,8 +8,10 @@ import {
 import { Feather, Ionicons } from "@expo/vector-icons";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+import { useRouter } from "expo-router";
 
 export default function EstadoPedido() {
+  const router = useRouter();
   return (
     <View style={{ flex: 1 }}>
       <Header />
@@ -111,10 +113,10 @@ export default function EstadoPedido() {
           </TouchableOpacity>
 
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.lightButton}>
+            <TouchableOpacity style={styles.lightButton}onPress={() => router.push("/principal")} >
               <Text>Explorar más productos</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.lightButton}>
+            <TouchableOpacity style={styles.lightButton} onPress={() => router.push("/historialP")}>
               <Text>Ver mis pedidos</Text>
             </TouchableOpacity>
           </View>

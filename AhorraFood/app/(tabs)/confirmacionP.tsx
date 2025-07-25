@@ -92,10 +92,10 @@ export default function Confirmacion() {
           </TouchableOpacity>
 
           <View style={styles.btnRow}>
-            <TouchableOpacity style={styles.secondaryBtn}>
+            <TouchableOpacity style={styles.secondaryBtn}onPress={() => router.push("/principal")}>
               <Text>Seguir comprando</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.secondaryBtn}>
+            <TouchableOpacity style={styles.secondaryBtn}onPress={() => router.push("/historialP")}>
               <Text>Mis pedidos</Text>
             </TouchableOpacity>
           </View>

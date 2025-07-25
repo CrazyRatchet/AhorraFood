@@ -157,6 +157,14 @@ export default function TabsLayout() {
           headerShown: false,
         }}
       />
+       <Tabs.Screen
+        name="historialP"
+        options={{
+          title: "Historial Pedido",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 }
