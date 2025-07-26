@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9fafb",
     flexGrow: 1,
     alignItems: "center",
+    justifyContent: "space-between",
   },
   wrapper: {
     width: "100%",

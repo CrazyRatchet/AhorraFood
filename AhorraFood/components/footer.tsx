@@ -1,35 +1,43 @@
-import React from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React from "react";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Footer() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const isDesktop = width >= 768;
   const maxContentWidth = 1100;
-  const contentWidth = isDesktop ? Math.min(width * 0.95, maxContentWidth) : width - 20;
+  const contentWidth = Math.min(width * 0.95, maxContentWidth);
 
   return (
     <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <View style={[styles.columns, { flexDirection: isDesktop ? 'row' : 'column', alignItems: isDesktop ? 'flex-start' : 'center' }]}>
-          <View style={[styles.column, { marginBottom: isDesktop ? 0 : 16 }]}>
+        <View
+          style={[
+            styles.columns,
+            { flexDirection: "row", alignItems: "flex-start" },
+          ]}
+        >
+          <View style={[styles.column, { marginBottom: 0 }]}>
             <Text style={styles.heading}>AhorraFood</Text>
-            <Text style={[styles.text, { textAlign: isDesktop ? 'left' : 'center' }]}>
-              Mata el hambre, salva el bolsillo, hacerlo con AhorraFood es sencillo.
+            <Text style={styles.text}>
+              Mata el hambre, salva el bolsillo, hacerlo con AhorraFood es
+              sencillo.
             </Text>
           </View>
 
-          <View style={[styles.column, { marginBottom: isDesktop ? 0 : 16 }]}>
-            <Text style={styles.highlight}>¡Únete al movimiento contra el desperdicio!</Text>
-            <Text style={[styles.text, { textAlign: isDesktop ? 'left' : 'center' }]}>
-              Cada producto que compras ayuda a reducir el desperdicio alimentario y apoya a comercios locales.
+          <View style={[styles.column, { marginBottom: 0 }]}>
+            <Text style={styles.highlight}>
+              ¡Únete al movimiento contra el desperdicio!
+            </Text>
+            <Text style={styles.text}>
+              Cada producto que compras ayuda a reducir el desperdicio
+              alimentario y apoya a comercios locales.
             </Text>
           </View>
 
-          <View style={styles.column}>
+          <View style={[styles.column, { marginBottom: 0 }]}>
             <Text style={styles.heading}>Contacto</Text>
-            <Text style={[styles.text, { textAlign: isDesktop ? 'left' : 'center' }]}>
+            <Text style={styles.text}>
               ¿Tienes preguntas? Contáctanos en info@ahorrafood.com
             </Text>
           </View>
@@ -46,22 +54,21 @@ export default function Footer() {
 
 const styles = StyleSheet.create({
   footer: {
-    backgroundColor: '#0f172a',
+    backgroundColor: "#0f172a",
     paddingTop: 16,
-    alignItems: 'center',
-    width: '110%',
+    alignItems: "center",
+    width: "110%",
     marginTop: 20,
-    marginHorizontal: -40,// Contrarresta el padding: 16 del contenedor padre
-    marginBottom: -32,     // Contrarresta el paddingBottom: 32 del contenedor padre
-    paddingHorizontal: 20, // Mantiene el padding interno para el contenido
-
+    marginHorizontal: -40,
+    marginBottom: -32,
+    paddingHorizontal: 20,
   },
   container: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   columns: {
-    width: '100%',
-    justifyContent: 'space-between',
+    width: "100%",
+    justifyContent: "space-between",
     marginBottom: 12,
   },
   column: {
@@ -69,31 +76,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   heading: {
-    color: '#f9fafb',
-    fontWeight: 'bold',
+    color: "#f9fafb",
+    fontWeight: "bold",
     fontSize: 12,
     marginBottom: 6,
+    textAlign: "left",
   },
   highlight: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 6,
+    textAlign: "left",
   },
   text: {
-    color: '#cbd5e1',
+    color: "#cbd5e1",
     fontSize: 12,
     lineHeight: 18,
+    textAlign: "left",
   },
   separator: {
-    width: '100%',
+    width: "100%",
     height: 1,
-    backgroundColor: '#1e293b',
+    backgroundColor: "#1e293b",
     marginBottom: 10,
   },
   copyright: {
-    color: '#94a3b8',
+    color: "#94a3b8",
     fontSize: 11,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

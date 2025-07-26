@@ -113,17 +113,22 @@ export default function EstadoPedido() {
           </TouchableOpacity>
 
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.lightButton} onPress={() => router.push("/principal")} >
+            <TouchableOpacity
+              style={styles.lightButton}
+              onPress={() => router.push("/principal")}
+            >
               <Text>Explorar más productos</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.lightButton} onPress={() => router.push("/historialP")}>
+            <TouchableOpacity
+              style={styles.lightButton}
+              onPress={() => router.push("/historialP")}
+            >
               <Text>Ver mis pedidos</Text>
             </TouchableOpacity>
           </View>
         </View>
         <Footer />
       </ScrollView>
-
     </View>
   );
 }
@@ -132,6 +137,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     alignItems: "center",
     paddingVertical: 20,
+    justifyContent: "space-between",
   },
   container: {
     width: "94%",

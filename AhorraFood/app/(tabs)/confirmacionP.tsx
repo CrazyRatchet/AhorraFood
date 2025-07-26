@@ -92,17 +92,22 @@ export default function Confirmacion() {
           </TouchableOpacity>
 
           <View style={styles.btnRow}>
-            <TouchableOpacity style={styles.secondaryBtn} onPress={() => router.push("/principal")}>
+            <TouchableOpacity
+              style={styles.secondaryBtn}
+              onPress={() => router.push("/principal")}
+            >
               <Text>Seguir comprando</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.secondaryBtn} onPress={() => router.push("/historialP")}>
+            <TouchableOpacity
+              style={styles.secondaryBtn}
+              onPress={() => router.push("/historialP")}
+            >
               <Text>Mis pedidos</Text>
             </TouchableOpacity>
           </View>
         </View>
         <Footer />
       </ScrollView>
-
     </View>
   );
 }
@@ -113,6 +118,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9fafb",
     flexGrow: 1,
     alignItems: "center",
+    justifyContent: "space-between",
   },
   wrapper: {
     width: "100%",

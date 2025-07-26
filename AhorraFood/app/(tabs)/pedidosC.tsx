@@ -70,10 +70,10 @@ export default function PedidosC() {
             pedido.estado === "Pendiente"
               ? "Preparando"
               : pedido.estado === "Preparando"
-                ? "Listo"
-                : pedido.estado === "Listo"
-                  ? "Completado"
-                  : pedido.estado;
+              ? "Listo"
+              : pedido.estado === "Listo"
+              ? "Completado"
+              : pedido.estado;
           return { ...pedido, estado: nuevoEstado };
         }
         return pedido;
@@ -273,8 +273,8 @@ export default function PedidosC() {
                           p.estado === "Pendiente"
                             ? "#facc15"
                             : p.estado === "Preparando"
-                              ? "#3b82f6"
-                              : "#22c55e",
+                            ? "#3b82f6"
+                            : "#22c55e",
                         paddingHorizontal: isSmallScreen ? 8 : 10,
                         paddingVertical: isSmallScreen ? 4 : 6,
                         borderRadius: 6,
@@ -289,17 +289,15 @@ export default function PedidosC() {
                         {p.estado === "Pendiente"
                           ? "Confirmar"
                           : p.estado === "Preparando"
-                            ? "Marcar Listo"
-                            : "Completar"}
+                          ? "Marcar Listo"
+                          : "Completar"}
                       </Text>
                     </Pressable>
                   )}
                 </View>
               </View>
             ))}
-
           </View>
-
         </View>
         <Footer />
       </ScrollView>
@@ -326,7 +324,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   scrollContent: {
-    paddingHorizontal: 0,
-    paddingBottom: 0,
+    flexGrow: 1,
+    justifyContent: "space-between",
   },
 });

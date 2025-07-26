@@ -34,10 +34,9 @@ export default function HistorialPedidos() {
   const router = useRouter();
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f8fafc" }}>
+    <View style={styles.screen}>
       <Header />
-
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.push("/principal")}
@@ -88,9 +87,8 @@ export default function HistorialPedidos() {
             </View>
           ))}
         </View>
-        <Footer />
       </ScrollView>
-
+      <Footer />
     </View>
   );
 }
@@ -105,6 +103,17 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 900,
   },
+  screen: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+    padding: 16,
+    paddingBottom: 40,
+  },
+
   title: {
     fontSize: 22,
     fontWeight: "bold",

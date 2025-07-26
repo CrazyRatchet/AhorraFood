@@ -128,8 +128,7 @@ export default function DashboardComercio() {
   return (
     <View style={{ flex: 1 }}>
       <Header />
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Header del Dashboard */}
+      <ScrollView contentContainerStyle ={styles.container}>
         <View style={styles.dashboardHeader}>
           <View>
             <Text style={styles.welcomeText}>¡Bienvenido!</Text>
@@ -140,7 +139,10 @@ export default function DashboardComercio() {
               Propietario: {userProfile.data?.propietario}
             </Text>
           </View>
-          <TouchableOpacity style={styles.logoutButton} onPress={() => router.push("/")} >
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={() => router.push("/")}
+          >
             <Feather name="log-out" size={20} color="#ef4444" />
           </TouchableOpacity>
         </View>
@@ -225,15 +227,17 @@ export default function DashboardComercio() {
         </View>
         <Footer />
       </ScrollView>
-
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    
+    justifyContent: "space-between",
     backgroundColor: "#f8fafc",
+    flexGrow: 1,
+    
   },
   dashboardHeader: {
     flexDirection: "row",

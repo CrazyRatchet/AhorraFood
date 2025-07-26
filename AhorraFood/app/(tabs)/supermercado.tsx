@@ -2,7 +2,10 @@ import Header from "@/components/Header";
 import Filtro from "@/components/filtro";
 import Footer from "@/components/footer";
 import TarjetasP from "@/components/tarjetasP";
-import { obtenerProductosDeSupermercados, ProductoPublico } from "@/funciones/obtenerProductosDeSupermercados";
+import {
+  obtenerProductosDeSupermercados,
+  ProductoPublico,
+} from "@/funciones/obtenerProductosDeSupermercados";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -18,7 +21,8 @@ import {
 const screenWidth = Dimensions.get("window").width;
 const isMobile = screenWidth < 768;
 const maxContentWidth = 1200;
-const usableWidth = screenWidth >= 768 ? Math.min(screenWidth, maxContentWidth) : screenWidth;
+const usableWidth =
+  screenWidth >= 768 ? Math.min(screenWidth, maxContentWidth) : screenWidth;
 
 // Cálculo corregido del ancho de las tarjetas
 const sidebarWidth = 280;
@@ -35,8 +39,12 @@ const cardWidth = (gridAvailableWidth - cardSpacing) / cardsPerRow;
 
 export default function SupermercadosScreen() {
   const router = useRouter();
-  const [productosOriginales, setProductosOriginales] = useState<ProductoPublico[]>([]);
-  const [productosFiltrados, setProductosFiltrados] = useState<ProductoPublico[]>([]);
+  const [productosOriginales, setProductosOriginales] = useState<
+    ProductoPublico[]
+  >([]);
+  const [productosFiltrados, setProductosFiltrados] = useState<
+    ProductoPublico[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   const cargarProductos = async () => {
@@ -105,8 +113,8 @@ export default function SupermercadosScreen() {
       producto.tipo_entrega?.recogida && producto.tipo_entrega?.domicilio
         ? "Recogida y Envío"
         : producto.tipo_entrega?.domicilio
-          ? "Envío a domicilio"
-          : "Recogida en local",
+        ? "Envío a domicilio"
+        : "Recogida en local",
     image: producto.imagen_url
       ? { uri: producto.imagen_url }
       : require("@/assets/images/arroz.jpg"),
@@ -124,7 +132,10 @@ export default function SupermercadosScreen() {
     <View style={styles.container}>
       <Header />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.push("/principal")}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.push("/principal")}
+        >
           <Text style={styles.backIcon}>←</Text>
           <Text style={styles.backText}>Volver al inicio</Text>
         </TouchableOpacity>
@@ -142,7 +153,9 @@ export default function SupermercadosScreen() {
               </View>
             )}
 
-            <Text style={styles.resultText}>{productosFiltrados.length} productos encontrados</Text>
+            <Text style={styles.resultText}>
+              {productosFiltrados.length} productos encontrados
+            </Text>
 
             <View style={styles.gridContainer}>
               {!isMobile && (
@@ -180,9 +193,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 16,
     alignItems: "center",
+    justifyContent: "space-between",
   },
   backButton: {
     flexDirection: "row",

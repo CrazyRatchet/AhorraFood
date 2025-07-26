@@ -202,10 +202,12 @@ export default function ProductosC() {
           <Text style={styles.subtitle}>
             {productos.length} producto{productos.length !== 1 ? "s" : ""}
             {productos.length > 0 &&
-              ` • ${productos.filter((p) => p.estado === "activo").length
-              } activo${productos.filter((p) => p.estado === "activo").length !== 1
-                ? "s"
-                : ""
+              ` • ${
+                productos.filter((p) => p.estado === "activo").length
+              } activo${
+                productos.filter((p) => p.estado === "activo").length !== 1
+                  ? "s"
+                  : ""
               }`}
           </Text>
         </View>
@@ -344,11 +346,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8fafc",
     alignSelf: "center",
     width: "100%",
-    maxWidth: 1200,
   },
   scrollContent: {
-    paddingHorizontal: 0,
-    paddingBottom: 0,
+    flexGrow: 1,
+    justifyContent: "space-between",
   },
   headerContainer: {
     flexDirection: "row",
@@ -385,6 +386,7 @@ const styles = StyleSheet.create({
     padding: 16,
     width: "100%",
     alignSelf: "center",
+    maxWidth: 1200,
   },
   productsGrid: {
     flexDirection: "row",

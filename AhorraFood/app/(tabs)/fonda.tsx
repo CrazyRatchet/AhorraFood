@@ -2,7 +2,10 @@ import Header from "@/components/Header";
 import Filtro from "@/components/filtro";
 import Footer from "@/components/footer";
 import TarjetasP from "@/components/tarjetasP";
-import { obtenerProductosDeFondas, ProductoPublico } from "@/funciones/obtenerProductosDeFondas";
+import {
+  obtenerProductosDeFondas,
+  ProductoPublico,
+} from "@/funciones/obtenerProductosDeFondas";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -18,7 +21,8 @@ import {
 const screenWidth = Dimensions.get("window").width;
 const isMobile = screenWidth < 768;
 const maxContentWidth = 1200;
-const usableWidth = screenWidth >= 768 ? Math.min(screenWidth, maxContentWidth) : screenWidth;
+const usableWidth =
+  screenWidth >= 768 ? Math.min(screenWidth, maxContentWidth) : screenWidth;
 
 // Cálculo corregido del ancho de las tarjetas
 const sidebarWidth = 280;
@@ -35,8 +39,12 @@ const cardWidth = (gridAvailableWidth - cardSpacing) / cardsPerRow;
 
 export default function FondasScreen() {
   const router = useRouter();
-  const [productosOriginales, setProductosOriginales] = useState<ProductoPublico[]>([]);
-  const [productosFiltrados, setProductosFiltrados] = useState<ProductoPublico[]>([]);
+  const [productosOriginales, setProductosOriginales] = useState<
+    ProductoPublico[]
+  >([]);
+  const [productosFiltrados, setProductosFiltrados] = useState<
+    ProductoPublico[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   const cargarProductos = async () => {
@@ -68,7 +76,10 @@ export default function FondasScreen() {
 
     // DEBUG: Mostrar estructura de los primeros productos
     if (productosOriginales.length > 0) {
-      console.log("Estructura de tipo_entrega del primer producto:", productosOriginales[0].tipo_entrega);
+      console.log(
+        "Estructura de tipo_entrega del primer producto:",
+        productosOriginales[0].tipo_entrega
+      );
       console.log("Producto completo:", productosOriginales[0]);
       console.log("Productos originales total:", productosOriginales.length);
     }
@@ -84,7 +95,9 @@ export default function FondasScreen() {
     if (!filtros.recogida || !filtros.domicilio) {
       // Solo filtrar si no están ambos seleccionados (todos)
       resultado = resultado.filter((p) => {
-        console.log(`Producto ${p.nombre}: recogida=${p.tipo_entrega?.recogida}, domicilio=${p.tipo_entrega?.domicilio}`);
+        console.log(
+          `Producto ${p.nombre}: recogida=${p.tipo_entrega?.recogida}, domicilio=${p.tipo_entrega?.domicilio}`
+        );
 
         // Si solo recogida está seleccionada
         if (filtros.recogida && !filtros.domicilio) {
@@ -110,7 +123,9 @@ export default function FondasScreen() {
       resultado.sort((a, b) => b.porcentaje_descuento - a.porcentaje_descuento);
     }
 
-    console.log(`Productos finales después de todos los filtros: ${resultado.length}`);
+    console.log(
+      `Productos finales después de todos los filtros: ${resultado.length}`
+    );
     setProductosFiltrados(resultado);
   };
 
@@ -123,8 +138,8 @@ export default function FondasScreen() {
       producto.tipo_entrega?.recogida && producto.tipo_entrega?.domicilio
         ? "Recogida y Envío"
         : producto.tipo_entrega?.domicilio
-          ? "Envío a domicilio"
-          : "Recogida en local",
+        ? "Envío a domicilio"
+        : "Recogida en local",
     image: producto.imagen_url
       ? { uri: producto.imagen_url }
       : require("@/assets/images/arroz.jpg"),
@@ -142,7 +157,10 @@ export default function FondasScreen() {
     <View style={styles.container}>
       <Header />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.push("/principal")}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.push("/principal")}
+        >
           <Text style={styles.backIcon}>←</Text>
           <Text style={styles.backText}>Volver al inicio</Text>
         </TouchableOpacity>
@@ -151,7 +169,8 @@ export default function FondasScreen() {
           <View style={styles.content}>
             <Text style={styles.welcomeTitle}>Fondas/Restaurantes</Text>
             <Text style={styles.welcomeSubtitle}>
-              Evita el desperdicio; disfruta platos caseros que aún pueden ser tuyos.
+              Evita el desperdicio; disfruta platos caseros que aún pueden ser
+              tuyos.
             </Text>
 
             {isMobile && (
@@ -160,7 +179,9 @@ export default function FondasScreen() {
               </View>
             )}
 
-            <Text style={styles.resultText}>{productosFiltrados.length} productos encontrados</Text>
+            <Text style={styles.resultText}>
+              {productosFiltrados.length} productos encontrados
+            </Text>
 
             <View style={styles.gridContainer}>
               {!isMobile && (
@@ -197,9 +218,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 32,
+    flexGrow: 1,
     alignItems: "center",
+    padding: 16,
+    justifyContent: "space-between",
+    paddingBottom: 16,
   },
   backButton: {
     flexDirection: "row",
