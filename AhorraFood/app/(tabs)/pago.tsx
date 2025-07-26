@@ -1,9 +1,11 @@
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+import PayPalWeb from "@/components/PayPalWeb";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,10 +13,52 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { PayPalOrder, PayPalPaymentResult } from "@/funciones/paypalService";
 
 export default function Pago() {
   const [method, setMethod] = useState("tarjeta");
+  const [showPayPal, setShowPayPal] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState<PayPalOrder | null>(null);
   const router = useRouter();
+
+  const handlePayNow = async () => {
+    if (method === "paypal") {
+      // Crear orden de PayPal
+      const order: PayPalOrder = {
+        id: '', // Se generará en el servidor
+        amount: 2.70,
+        currency: 'USD',
+        description: 'Pedido AhorraFood',
+        items: [
+          {
+            name: 'Pedido de comida',
+            quantity: 1,
+            unit_amount: 2.70
+          }
+        ]
+      };
+      
+      setCurrentOrder(order);
+      setShowPayPal(true);
+    } else {
+      // Pago con tarjeta (mantener funcionalidad existente)
+      router.push("/confirmacionP");
+    }
+  };
+
+  const handlePayPalSuccess = (result: PayPalPaymentResult) => {
+    setShowPayPal(false);
+    router.push("/confirmacionP");
+  };
+
+  const handlePayPalError = (error: string) => {
+    Alert.alert('Error de Pago', `Hubo un problema con el pago: ${error}`);
+    setShowPayPal(false);
+  };
+
+  const handlePayPalCancel = () => {
+    setShowPayPal(false);
+  };
   return (
     <View style={{ flex: 1 }}>
       <Header />
@@ -105,11 +149,23 @@ export default function Pago() {
 
           <TouchableOpacity
             style={styles.payBtn}
-            onPress={() => router.push("/confirmacionP")}
+            onPress={handlePayNow}
           >
-            <Text style={styles.payText}>Pagar ahora USD 2.70</Text>
+            <Text style={styles.payText}>
+              {method === "paypal" ? "Pagar con PayPal USD 2.70" : "Pagar ahora USD 2.70"}
+            </Text>
           </TouchableOpacity>
         </View>
+        
+        {/* Modal de PayPal */}
+        <PayPalWeb
+          visible={showPayPal}
+          order={currentOrder}
+          onSuccess={handlePayPalSuccess}
+          onError={handlePayPalError}
+          onCancel={handlePayPalCancel}
+        />
+        
         <Footer />
       </ScrollView>
     </View>
