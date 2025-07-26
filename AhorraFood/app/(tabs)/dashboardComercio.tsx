@@ -140,7 +140,7 @@ export default function DashboardComercio() {
               Propietario: {userProfile.data?.propietario}
             </Text>
           </View>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <TouchableOpacity style={styles.logoutButton} onPress={() => router.push("/")} >
             <Feather name="log-out" size={20} color="#ef4444" />
           </TouchableOpacity>
         </View>

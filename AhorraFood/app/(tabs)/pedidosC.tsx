@@ -297,7 +297,9 @@ export default function PedidosC() {
                 </View>
               </View>
             ))}
+
           </View>
+
         </View>
         <Footer />
       </ScrollView>
@@ -322,5 +324,9 @@ const styles = StyleSheet.create({
   },
   tdSmall: {
     fontSize: 10,
+  },
+  scrollContent: {
+    paddingHorizontal: 0,
+    paddingBottom: 0,
   },
 });

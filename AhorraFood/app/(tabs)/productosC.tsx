@@ -219,6 +219,7 @@ export default function ProductosC() {
 
       <ScrollView
         style={styles.container}
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -333,7 +334,6 @@ export default function ProductosC() {
         </View>
         <Footer />
       </ScrollView>
-
     </View>
   );
 }
@@ -345,6 +345,10 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "100%",
     maxWidth: 1200,
+  },
+  scrollContent: {
+    paddingHorizontal: 0,
+    paddingBottom: 0,
   },
   headerContainer: {
     flexDirection: "row",
