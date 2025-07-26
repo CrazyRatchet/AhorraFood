@@ -1,17 +1,17 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-  Dimensions,
-} from "react-native";
-import { useRouter } from "expo-router";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import {
+  Alert,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -101,8 +101,9 @@ export default function RegisterC1() {
             <Text style={styles.buttonText}>Siguiente</Text>
           </TouchableOpacity>
         </View>
+        <Footer />
       </ScrollView>
-      <Footer />
+
     </View>
   );
 }
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     gap: 12,
-    
+
   },
   title: {
     fontSize: 18,

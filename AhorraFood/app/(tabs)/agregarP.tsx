@@ -1,22 +1,22 @@
+import Header from "@/components/Header";
+import Footer from "@/components/footer";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-  Platform,
+  View,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { useRouter } from "expo-router";
 import { subirProducto, validarProducto } from "../../funciones/productos";
-import Header from "@/components/Header";
-import Footer from "@/components/footer";
 
 export default function PublicarProducto() {
   const router = useRouter();
@@ -242,7 +242,7 @@ export default function PublicarProducto() {
                     ((parseFloat(precioOriginal) -
                       parseFloat(precioDescuento)) /
                       parseFloat(precioOriginal)) *
-                      100
+                    100
                   )}
                   %
                 </Text>
@@ -314,8 +314,9 @@ export default function PublicarProducto() {
             </TouchableOpacity>
           </View>
         </View>
+        <Footer />
       </ScrollView>
-      <Footer />
+
     </View>
   );
 }

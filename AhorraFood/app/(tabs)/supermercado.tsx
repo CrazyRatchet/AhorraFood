@@ -17,9 +17,21 @@ import {
 
 const screenWidth = Dimensions.get("window").width;
 const isMobile = screenWidth < 768;
-const maxContentWidth = 1100;
+const maxContentWidth = 1200;
 const usableWidth = screenWidth >= 768 ? Math.min(screenWidth, maxContentWidth) : screenWidth;
-const cardWidth = screenWidth >= 768 ? usableWidth / 3 - 20 : usableWidth / 2 - 20;
+
+// Cálculo corregido del ancho de las tarjetas
+const sidebarWidth = 280;
+const gridGap = 16;
+const padding = 32; // padding total (16 * 2)
+
+const gridAvailableWidth = isMobile
+  ? usableWidth - padding
+  : usableWidth - padding - sidebarWidth - gridGap;
+
+const cardsPerRow = isMobile ? 2 : 3;
+const cardSpacing = (cardsPerRow - 1) * 12; // espacio entre tarjetas
+const cardWidth = (gridAvailableWidth - cardSpacing) / cardsPerRow;
 
 export default function SupermercadosScreen() {
   const router = useRouter();
@@ -141,7 +153,9 @@ export default function SupermercadosScreen() {
 
               <View style={styles.grid}>
                 {loading ? (
-                  <ActivityIndicator size="large" color="#166534" />
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#166534" />
+                  </View>
                 ) : (
                   productosFiltrados.map((producto) => (
                     <TarjetasP
@@ -155,8 +169,8 @@ export default function SupermercadosScreen() {
             </View>
           </View>
         </View>
+        <Footer />
       </ScrollView>
-      <Footer />
     </View>
   );
 }
@@ -194,7 +208,7 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     width: "100%",
-    maxWidth: 1200,
+    maxWidth: maxContentWidth,
   },
   content: {
     flex: 1,
@@ -219,17 +233,26 @@ const styles = StyleSheet.create({
   gridContainer: {
     flexDirection: screenWidth >= 768 ? "row" : "column",
     gap: 16,
+    width: "100%",
   },
   sidebar: {
-    width: 280,
+    width: sidebarWidth,
+    flexShrink: 0,
   },
   mobileFilter: {
     marginBottom: 16,
   },
   grid: {
+    flex: 1,
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
-    maxWidth: 1100,
+    gap: 12,
+    justifyContent: isMobile ? "space-between" : "flex-start",
+  },
+  loadingContainer: {
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 40,
   },
 });

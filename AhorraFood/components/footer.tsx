@@ -1,16 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Footer() {
   const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets(); // 👈 para obtener padding seguro
+  const insets = useSafeAreaInsets();
   const isDesktop = width >= 768;
   const maxContentWidth = 1100;
   const contentWidth = isDesktop ? Math.min(width * 0.95, maxContentWidth) : width - 20;
 
   return (
-    <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}> {/* 👈 se suma el insets.bottom */}
+    <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
       <View style={[styles.container, { width: contentWidth }]}>
         <View style={[styles.columns, { flexDirection: isDesktop ? 'row' : 'column', alignItems: isDesktop ? 'flex-start' : 'center' }]}>
           <View style={[styles.column, { marginBottom: isDesktop ? 0 : 16 }]}>
@@ -49,7 +49,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#0f172a',
     paddingTop: 16,
     alignItems: 'center',
-    width: '100%',
+    width: '110%',
+    marginTop: 20,
+    marginHorizontal: -40,// Contrarresta el padding: 16 del contenedor padre
+    marginBottom: -32,     // Contrarresta el paddingBottom: 32 del contenedor padre
+    paddingHorizontal: 20, // Mantiene el padding interno para el contenido
+
   },
   container: {
     alignItems: 'center',

@@ -1,16 +1,16 @@
+import Header from "@/components/Header";
+import Footer from "@/components/footer";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
-  View,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  ScrollView,
+  View,
 } from "react-native";
-import { useState } from "react";
-import { FontAwesome5 } from "@expo/vector-icons";
-import Header from "@/components/Header";
-import Footer from "@/components/footer";
-import { useRouter } from "expo-router";
 
 export default function Pago() {
   const [method, setMethod] = useState("tarjeta");
@@ -110,8 +110,8 @@ export default function Pago() {
             <Text style={styles.payText}>Pagar ahora USD 2.70</Text>
           </TouchableOpacity>
         </View>
+        <Footer />
       </ScrollView>
-      <Footer />
     </View>
   );
 }

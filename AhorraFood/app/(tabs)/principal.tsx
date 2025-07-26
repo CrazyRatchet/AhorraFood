@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, ScrollView, ActivityIndicator, RefreshControl } from "react-native";
-import { useRouter } from "expo-router";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../FirebaseConfig";
-import { detectUserType, UserProfile } from "../../funciones/userType";
-import { obtenerProductosMejorValorados, obtenerTodosLosProductos, ProductoPublico } from "../../funciones/productosPublicos";
+import Estadisticas from '@/components/estadisticas';
+import Footer from "@/components/footer";
 import Header from "@/components/Header";
 import TarjetasL from "@/components/tarjetasL";
 import TarjetasP from "@/components/tarjetasP";
-import Estadisticas from '@/components/estadisticas';
-import Footer from "@/components/footer";
-import { Dimensions } from "react-native";
+import { useRouter } from "expo-router";
+import { onAuthStateChanged } from "firebase/auth";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Dimensions, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { auth } from "../../FirebaseConfig";
+import { obtenerTodosLosProductos, ProductoPublico } from "../../funciones/productosPublicos";
+import { detectUserType, UserProfile } from "../../funciones/userType";
+
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -34,7 +34,7 @@ export default function HomeScreen() {
         try {
           const profile = await detectUserType();
           setUserProfile(profile);
-          
+
           // Si es un comercio, redirigir al dashboard de comercio
           if (profile.type === "comercio") {
             router.replace("/dashboardComercio");
@@ -59,15 +59,15 @@ export default function HomeScreen() {
   const cargarProductos = async () => {
     try {
       console.log("🔄 Cargando productos para página principal...");
-      
+
       // Usar función super simple para debug
       const productosData = await obtenerTodosLosProductos();
       console.log("📦 Productos obtenidos:", productosData.length);
-      
+
       // Tomar solo los primeros 6 para la página principal
       const productosLimitados = productosData.slice(0, 6);
       setProductos(productosLimitados);
-      
+
     } catch (error: any) {
       console.error("❌ Error cargando productos:", error);
       console.error("❌ Detalles del error:", error.stack);
@@ -86,10 +86,10 @@ export default function HomeScreen() {
       title: producto.nombre,
       description: producto.descripcion,
       expirationDate: producto.fecha_vencimiento.toLocaleDateString(),
-      deliveryType: producto.tipo_entrega?.recogida && producto.tipo_entrega?.domicilio 
-        ? "Recogida y Envío" 
-        : producto.tipo_entrega?.domicilio 
-          ? "Envío a domicilio" 
+      deliveryType: producto.tipo_entrega?.recogida && producto.tipo_entrega?.domicilio
+        ? "Recogida y Envío"
+        : producto.tipo_entrega?.domicilio
+          ? "Envío a domicilio"
           : "Recogida en local",
       image: producto.imagen_url ? { uri: producto.imagen_url } : require("@/assets/images/arroz.jpg"),
       rating: 4.5, // Por ahora fijo, se puede implementar sistema de ratings después
@@ -114,8 +114,8 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Header/>
-      <ScrollView 
+      <Header />
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#166534"]} />
@@ -128,9 +128,9 @@ export default function HomeScreen() {
             reducir el desperdicio alimentario
           </Text>
         </View>
-        
-        <TarjetasL/>
-        
+
+        <TarjetasL />
+
         <Text style={styles.heading}>Productos Mejor Valorados</Text>
         <Text style={styles.subheading}>
           Los favoritos de nuestros usuarios, tanto de fondas como supermercados
@@ -139,9 +139,9 @@ export default function HomeScreen() {
         {productos.length > 0 ? (
           <View style={styles.grid}>
             {productos.map((producto) => (
-              <TarjetasP 
-                key={producto.id} 
-                product={convertirProductoParaTarjeta(producto)} 
+              <TarjetasP
+                key={producto.id}
+                product={convertirProductoParaTarjeta(producto)}
                 width={cardWidth}
               />
             ))}
@@ -153,10 +153,10 @@ export default function HomeScreen() {
             </Text>
           </View>
         )}
-        
-        <Estadisticas/>
+
+        <Estadisticas />
+        <Footer />
       </ScrollView>
-      <Footer/>
     </View>
   );
 }

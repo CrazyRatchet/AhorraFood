@@ -1,22 +1,22 @@
 // app/(tabs)/dashboardComercio.tsx
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
-import { Feather, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { auth } from "../../FirebaseConfig";
-import { signOut } from "firebase/auth";
-import { detectUserType, UserProfile } from "../../funciones/userType";
-import { obtenerProductosComercio } from "../../funciones/productosComercio";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+import { Feather, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { signOut } from "firebase/auth";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { auth } from "../../FirebaseConfig";
+import { obtenerProductosComercio } from "../../funciones/productosComercio";
+import { detectUserType, UserProfile } from "../../funciones/userType";
 
 export default function DashboardComercio() {
   const router = useRouter();
@@ -223,8 +223,9 @@ export default function DashboardComercio() {
             <Feather name="chevron-right" size={20} color="white" />
           </TouchableOpacity>
         </View>
+        <Footer />
       </ScrollView>
-      <Footer />
+
     </View>
   );
 }

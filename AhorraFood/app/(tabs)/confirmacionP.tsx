@@ -1,14 +1,14 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
-import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function Confirmacion() {
   const router = useRouter();
@@ -92,16 +92,17 @@ export default function Confirmacion() {
           </TouchableOpacity>
 
           <View style={styles.btnRow}>
-            <TouchableOpacity style={styles.secondaryBtn}onPress={() => router.push("/principal")}>
+            <TouchableOpacity style={styles.secondaryBtn} onPress={() => router.push("/principal")}>
               <Text>Seguir comprando</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.secondaryBtn}onPress={() => router.push("/historialP")}>
+            <TouchableOpacity style={styles.secondaryBtn} onPress={() => router.push("/historialP")}>
               <Text>Mis pedidos</Text>
             </TouchableOpacity>
           </View>
         </View>
+        <Footer />
       </ScrollView>
-      <Footer />
+
     </View>
   );
 }

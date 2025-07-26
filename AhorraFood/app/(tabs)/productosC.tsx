@@ -1,28 +1,28 @@
 // app/productosC.tsx
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-  Alert,
-  ActivityIndicator,
-  RefreshControl,
-  useWindowDimensions,
-  Platform,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import {
-  obtenerProductosComercio,
-  cambiarEstadoProducto,
-  eliminarProducto,
-  Producto,
-} from "../../funciones/productosComercio";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+import { Feather } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import {
+  cambiarEstadoProducto,
+  eliminarProducto,
+  obtenerProductosComercio,
+  Producto,
+} from "../../funciones/productosComercio";
 
 export default function ProductosC() {
   const router = useRouter();
@@ -202,12 +202,10 @@ export default function ProductosC() {
           <Text style={styles.subtitle}>
             {productos.length} producto{productos.length !== 1 ? "s" : ""}
             {productos.length > 0 &&
-              ` • ${
-                productos.filter((p) => p.estado === "activo").length
-              } activo${
-                productos.filter((p) => p.estado === "activo").length !== 1
-                  ? "s"
-                  : ""
+              ` • ${productos.filter((p) => p.estado === "activo").length
+              } activo${productos.filter((p) => p.estado === "activo").length !== 1
+                ? "s"
+                : ""
               }`}
           </Text>
         </View>
@@ -333,8 +331,9 @@ export default function ProductosC() {
             </View>
           ))}
         </View>
+        <Footer />
       </ScrollView>
-      <Footer />
+
     </View>
   );
 }

@@ -1,14 +1,14 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
-import { Feather, Ionicons } from "@expo/vector-icons";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function EstadoPedido() {
   const router = useRouter();
@@ -113,7 +113,7 @@ export default function EstadoPedido() {
           </TouchableOpacity>
 
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.lightButton}onPress={() => router.push("/principal")} >
+            <TouchableOpacity style={styles.lightButton} onPress={() => router.push("/principal")} >
               <Text>Explorar más productos</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.lightButton} onPress={() => router.push("/historialP")}>
@@ -121,8 +121,9 @@ export default function EstadoPedido() {
             </TouchableOpacity>
           </View>
         </View>
+        <Footer />
       </ScrollView>
-      <Footer />
+
     </View>
   );
 }

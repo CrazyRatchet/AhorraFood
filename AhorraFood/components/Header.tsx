@@ -1,16 +1,16 @@
+import { Ionicons } from "@expo/vector-icons";
+import { usePathname, useRouter } from "expo-router";
 import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  TextInput,
-  Platform,
   Dimensions,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { usePathname, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function DynamicHeader() {
   const insets = useSafeAreaInsets();
@@ -34,10 +34,13 @@ export default function DynamicHeader() {
       <View style={styles.header}>
         {/* Logo + texto */}
         <View style={styles.left}>
-          <Image
-            source={require("@/assets/images/logooo.png")}
-            style={styles.logo}
-          />
+          <TouchableOpacity onPress={() => router.push("/principal")}>
+            <Image
+              source={require("@/assets/images/logooo.png")}
+              style={styles.logo}
+            />
+
+          </TouchableOpacity>
           {!isMobile && <Text style={styles.title}>AhorraFood</Text>}
         </View>
 
@@ -242,9 +245,9 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     ...(Platform.OS === "web"
       ? {
-          outlineWidth: 0,
-          outlineColor: "transparent",
-        }
+        outlineWidth: 0,
+        outlineColor: "transparent",
+      }
       : {}),
   },
 });

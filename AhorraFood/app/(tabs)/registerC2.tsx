@@ -1,15 +1,15 @@
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
+  Alert,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
-  StyleSheet,
   TouchableOpacity,
-  ScrollView,
-  Alert,
   useWindowDimensions,
+  View,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
 
 export default function RegisterStep2() {
   const router = useRouter();
@@ -34,15 +34,15 @@ export default function RegisterStep2() {
   const handleTimeChange = (name: string, value: string) => {
     // Formatear automáticamente la hora mientras escribe
     let formattedValue = value.replace(/[^0-9]/g, ''); // Solo números
-    
+
     if (formattedValue.length >= 3) {
       formattedValue = formattedValue.substring(0, 2) + ':' + formattedValue.substring(2, 4);
     }
-    
+
     if (formattedValue.length > 5) {
       formattedValue = formattedValue.substring(0, 5);
     }
-    
+
     setForm((prev) => ({ ...prev, [name]: formattedValue }));
   };
 
@@ -274,6 +274,7 @@ export default function RegisterStep2() {
             <Text style={styles.nextButtonText}>Siguiente</Text>
           </TouchableOpacity>
         </View>
+
       </ScrollView>
     </View>
   );

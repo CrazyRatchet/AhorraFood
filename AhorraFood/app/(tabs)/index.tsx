@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import Footer from "@/components/footer";
+import Funcion from "@/components/funcion";
 import Header from "@/components/Header";
 import TarjetasL from "@/components/tarjetasL";
 import TarjetasP from "@/components/tarjetasP";
-import Funcion from "@/components/funcion";
-import Footer from "@/components/footer";
-import { Dimensions } from "react-native";
+import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -88,12 +88,12 @@ const products = [
     discount: "30%",
     top: true,
   },
-  
+
 ];
 export default function HomeScreen() {
   return (
     <View style={{ flex: 1 }}>
-      <Header/>
+      <Header />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeTitle}>¡Bienvenido a AhorraFood!</Text>
@@ -102,7 +102,7 @@ export default function HomeScreen() {
             reducir el desperdicio alimentario
           </Text>
         </View>
-        <TarjetasL/>
+        <TarjetasL />
         <Text style={styles.heading}>Productos Mejor Valorados</Text>
         <Text style={styles.subheading}>
           Los favoritos de nuestros usuarios, tanto de fondas como supermercados
@@ -110,13 +110,13 @@ export default function HomeScreen() {
 
         <View style={styles.grid}>
           {products.map((product, idx) => (
-            <TarjetasP key={idx} product={product} width={cardWidth}/>
+            <TarjetasP key={idx} product={product} width={cardWidth} />
           ))}
         </View>
-        <Funcion/>
-        
+        <Funcion />
+        <Footer />
       </ScrollView>
-      <Footer/>
+
     </View>
   );
 }

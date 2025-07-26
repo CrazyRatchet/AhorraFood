@@ -1,19 +1,19 @@
 // registerC3.tsx
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  useWindowDimensions,
-  Alert,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import * as DocumentPicker from "expo-document-picker";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
+import { Ionicons } from "@expo/vector-icons";
+import * as DocumentPicker from "expo-document-picker";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState } from "react";
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { registerComercio } from "../../funciones/registerComercio";
 
 export default function RegisterC3() {
@@ -71,8 +71,8 @@ export default function RegisterC3() {
     try {
       await registerComercio(payload);
       Alert.alert(
-        "Registro exitoso", 
-        "Tu comercio ha sido registrado exitosamente. Puedes iniciar sesión ahora.", 
+        "Registro exitoso",
+        "Tu comercio ha sido registrado exitosamente. Puedes iniciar sesión ahora.",
         [
           {
             text: "Iniciar sesión",
@@ -83,7 +83,7 @@ export default function RegisterC3() {
     } catch (error: any) {
       console.error("Error al registrar:", error);
       Alert.alert(
-        "Error al registrar", 
+        "Error al registrar",
         error.message || "Hubo un problema al registrar tu comercio. Inténtalo nuevamente."
       );
     } finally {
@@ -118,21 +118,21 @@ export default function RegisterC3() {
         </Text>
 
         <View style={styles.uploadContainer}>
-          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("licencia")}>            
+          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("licencia")}>
             <Ionicons name="cloud-upload-outline" size={28} color="#6b7280" />
             <Text style={styles.uploadText}>
               {files.licencia ? "Licencia subida ✔" : "Sube tu licencia de funcionamiento"}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("permisos_salud")}>            
+          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("permisos_salud")}>
             <Ionicons name="cloud-upload-outline" size={28} color="#6b7280" />
             <Text style={styles.uploadText}>
               {files.permisos_salud ? "Permiso de salud subido ✔" : "Sube tu permiso de salud"}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("ruc")}>            
+          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("ruc")}>
             <Ionicons name="cloud-upload-outline" size={28} color="#6b7280" />
             <Text style={styles.uploadText}>
               {files.ruc ? "RUC subido ✔" : "Sube tu registro tributario (RUC)"}
@@ -153,12 +153,12 @@ export default function RegisterC3() {
         </View>
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.push("/registerC2")}>            
+          <TouchableOpacity style={styles.backButton} onPress={() => router.push("/registerC2")}>
             <Text style={styles.backButtonText}>Anterior</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
-              styles.submitButton, 
+              styles.submitButton,
               (!termsAccepted || isSubmitting) && { opacity: 0.5 }
             ]}
             disabled={!termsAccepted || isSubmitting}
@@ -169,8 +169,8 @@ export default function RegisterC3() {
             </Text>
           </TouchableOpacity>
         </View>
+        <Footer />
       </ScrollView>
-      <Footer />
     </View>
   );
 }

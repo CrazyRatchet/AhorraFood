@@ -1,18 +1,19 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import Footer from "@/components/footer";
+import Header from "@/components/Header";
+import InfoComercio from "@/components/infoComercio";
+import Reseña from "@/components/reseñas";
 import { FontAwesome, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import Header from "@/components/Header";
-import Reseña from "@/components/reseñas";
-import Footer from "@/components/footer";
-import InfoComercio from "@/components/infoComercio";
-import { Dimensions } from "react-native";
+import {
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
+
 
 export default function VistaP() {
   const { product } = useLocalSearchParams();
@@ -176,8 +177,8 @@ export default function VistaP() {
             ]}
           />
         </View>
+        <Footer />
       </ScrollView>
-      <Footer />
     </View>
   );
 }
