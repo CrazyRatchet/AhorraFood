@@ -1,24 +1,61 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-  Platform,
-} from "react-native";
-import { RadioButton } from "react-native-paper";
 import Slider from "@react-native-community/slider";
 import { Picker } from "@react-native-picker/picker";
+import React, { useEffect, useState } from "react";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import { RadioButton } from "react-native-paper";
 
-export default function FilterSidebar() {
+interface FiltroProps {
+  onFilterChange: (filtros: {
+    precioMin: number;
+    precioMax: number;
+    recogida: boolean;
+    domicilio: boolean;
+    orden: string;
+  }) => void;
+}
+
+export default function Filtro({ onFilterChange }: FiltroProps) {
   const [price, setPrice] = useState(10);
   const [location, setLocation] = useState("all");
-  const [deliveryType, setDeliveryType] = useState("todos");
+  const [deliveryType, setDeliveryType] = useState<"todos" | "local" | "domicilio">("todos");
+  const [order, setOrder] = useState("precio_asc");
   const [showFilters, setShowFilters] = useState(false);
 
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
+
+  useEffect(() => {
+    let recogida = false;
+    let domicilio = false;
+
+    if (deliveryType === "todos") {
+      recogida = true;
+      domicilio = true;
+    } else if (deliveryType === "local") {
+      recogida = true;
+      domicilio = false;
+    } else if (deliveryType === "domicilio") {
+      recogida = false;
+      domicilio = true;
+    }
+
+    console.log("Filtro aplicado:", { precioMin: 0, precioMax: price, recogida, domicilio, orden: order });
+
+    onFilterChange({
+      precioMin: 0,
+      precioMax: price,
+      recogida,
+      domicilio,
+      orden: order,
+    });
+  }, [price, deliveryType, order]);
 
   return (
     <View style={styles.container}>
@@ -40,17 +77,15 @@ export default function FilterSidebar() {
         <>
           <Text style={styles.header}>Filtros</Text>
           <Text style={styles.description}>
-            Permite refinar los resultados por precio, ubicación, tipo de
-            entrega y fecha de vencimiento.
+            Permite refinar los resultados por precio, ubicación, tipo de entrega y fecha de vencimiento.
           </Text>
 
-          {/* Rango de Precios */}
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Rango de precios</Text>
             <Slider
               style={{ width: "100%" }}
               minimumValue={0}
-              maximumValue={10}
+              maximumValue={30}
               step={1}
               value={price}
               onValueChange={setPrice}
@@ -64,41 +99,36 @@ export default function FilterSidebar() {
             </View>
           </View>
 
-          {/* Ubicación */}
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Ubicación</Text>
             <View style={styles.pickerWrapper}>
               <Picker
                 selectedValue={location}
-                onValueChange={(itemValue) => setLocation(itemValue)}
+                onValueChange={setLocation}
                 style={styles.picker}
                 itemStyle={styles.pickerItem}
               >
                 <Picker.Item label="Todas las ubicaciones" value="all" />
-                <Picker.Item label="Panamá" value="panama" />
-                <Picker.Item label="Colón" value="colon" />
+                <Picker.Item label="Panamá" value="Panamá" />
+                <Picker.Item label="Colón" value="Colón" />
               </Picker>
             </View>
           </View>
 
-          {/* Tipo de entrega */}
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Tipo de entrega</Text>
             <RadioButton.Group
-              onValueChange={(value) => setDeliveryType(value)}
+              onValueChange={(value) => {
+                // Casteo seguro con check explícito para evitar warning TS
+                if (value === "todos" || value === "local" || value === "domicilio") {
+                  setDeliveryType(value);
+                }
+              }}
               value={deliveryType}
             >
               <RadioButton.Item label="Todos" value="todos" color="#2E7D32" />
-              <RadioButton.Item
-                label="Recogida en el local"
-                value="local"
-                color="#2E7D32"
-              />
-              <RadioButton.Item
-                label="Envío a domicilio"
-                value="domicilio"
-                color="#2E7D32"
-              />
+              <RadioButton.Item label="Recogida en el local" value="local" color="#2E7D32" />
+              <RadioButton.Item label="Envío a domicilio" value="domicilio" color="#2E7D32" />
             </RadioButton.Group>
           </View>
         </>
@@ -174,7 +204,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: Platform.OS === "web" ? 40 : 50,
     fontSize: 14,
-    ...(Platform.OS === "web" ? {  } : {}),
   },
   pickerItem: {
     fontSize: 14,

@@ -1,135 +1,173 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  Dimensions,
-  TouchableOpacity,
-} from "react-native";
 import Header from "@/components/Header";
-import TarjetasP from "@/components/tarjetasP";
 import Filtro from "@/components/filtro";
 import Footer from "@/components/footer";
+import TarjetasP from "@/components/tarjetasP";
+import { obtenerProductosDeFondas, ProductoPublico } from "@/funciones/obtenerProductosDeFondas";
 import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
 const screenWidth = Dimensions.get("window").width;
 const isMobile = screenWidth < 768;
-
 const maxContentWidth = 1100;
-const usableWidth =
-  screenWidth >= 768 ? Math.min(screenWidth, maxContentWidth) : screenWidth;
+const usableWidth = screenWidth >= 768 ? Math.min(screenWidth, maxContentWidth) : screenWidth;
+const cardWidth = screenWidth >= 768 ? usableWidth / 3 - 20 : usableWidth / 2 - 20;
 
-const cardWidth =
-  screenWidth >= 768 ? usableWidth / 3 - 20 : usableWidth / 2 - 20;
-const router = useRouter();
-const products = [
-  {
-    title: "Arroz con Pollo",
-    description:
-      "Tradicional arroz con pollo acompañado de frijoles negros, tajadas maduras y ensalada fresca.",
-    expirationDate: "2024-06-Jun 2025",
-    deliveryType: "Recogida en local",
-    image: require("@/assets/images/arroz.jpg"),
-    rating: 4.9,
-    reviews: 127,
-    store: "Fonda Doña Carmen",
-    location: "Vía España",
-    price: "2.70",
-    oldPrice: "4.50",
-    discount: "40%",
-    top: true,
-  },
-  {
-    title: "Pescado Frito",
-    description:
-      "Fresco pescado frito acompañado de patacones crujientes, arroz de coco y ensalada.",
-    expirationDate: "2024-06-20",
-    deliveryType: "Recogida en local",
-    image: require("@/assets/images/pescado.jpg"),
-    rating: 4.7,
-    reviews: 95,
-    store: "Fonda La Maria",
-    location: "Casco Viejo",
-    price: "4.2",
-    oldPrice: "6",
-    discount: "30%",
-    top: true,
-  },
-  {
-    title: "Bistec Encebollado",
-    description:
-      "Jugoso bistec de res encebollado con arroz blanco, frijoles rojos y tajadas maduras.",
-    expirationDate: "2024-06-2025",
-    deliveryType: "Envío disponible",
-    image: require("@/assets/images/bistec.jpg"),
-    rating: 4.7,
-    reviews: 95,
-    store: " Fonda El Buen Sabor",
-    location: "Casco Viejo",
-    price: "3.85",
-    oldPrice: "5.50",
-    discount: "30%",
-    top: true,
-  },
-  {
-    title: "Pollo Guisado Criollo",
-    description: "Pollo guisado estilo criollo con arroz blanco y vegetales.",
-    expirationDate: "2024-06-30",
-    deliveryType: "Envío disponible",
-    image: require("@/assets/images/polloguisado.jpg"),
+export default function FondasScreen() {
+  const router = useRouter();
+  const [productosOriginales, setProductosOriginales] = useState<ProductoPublico[]>([]);
+  const [productosFiltrados, setProductosFiltrados] = useState<ProductoPublico[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const cargarProductos = async () => {
+    try {
+      const productos = await obtenerProductosDeFondas();
+      setProductosOriginales(productos);
+      setProductosFiltrados(productos);
+    } catch (error) {
+      console.error("Error cargando productos de fondas:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarProductos();
+  }, []);
+
+  const aplicarFiltros = (filtros: {
+    precioMin: number;
+    precioMax: number;
+    recogida: boolean;
+    domicilio: boolean;
+    orden: string;
+  }) => {
+    console.log("Aplicando filtros:", filtros);
+
+    let resultado = [...productosOriginales];
+
+    // DEBUG: Mostrar estructura de los primeros productos
+    if (productosOriginales.length > 0) {
+      console.log("Estructura de tipo_entrega del primer producto:", productosOriginales[0].tipo_entrega);
+      console.log("Producto completo:", productosOriginales[0]);
+      console.log("Productos originales total:", productosOriginales.length);
+    }
+
+    // Filtro por precio
+    resultado = resultado.filter(
+      (p) =>
+        p.precio_descuento >= filtros.precioMin &&
+        p.precio_descuento <= filtros.precioMax
+    );
+
+    // Filtro por tipo de entrega - LÓGICA CORREGIDA
+    if (!filtros.recogida || !filtros.domicilio) {
+      // Solo filtrar si no están ambos seleccionados (todos)
+      resultado = resultado.filter((p) => {
+        console.log(`Producto ${p.nombre}: recogida=${p.tipo_entrega?.recogida}, domicilio=${p.tipo_entrega?.domicilio}`);
+
+        // Si solo recogida está seleccionada
+        if (filtros.recogida && !filtros.domicilio) {
+          return p.tipo_entrega?.recogida === true;
+        }
+        // Si solo domicilio está seleccionado
+        if (!filtros.recogida && filtros.domicilio) {
+          return p.tipo_entrega?.domicilio === true;
+        }
+        return false;
+      });
+    }
+    // Si ambos están true (todos), no aplicar filtro de entrega
+
+    console.log(`Productos después del filtro de entrega: ${resultado.length}`);
+
+    // Orden
+    if (filtros.orden === "precio_asc") {
+      resultado.sort((a, b) => a.precio_descuento - b.precio_descuento);
+    } else if (filtros.orden === "precio_desc") {
+      resultado.sort((a, b) => b.precio_descuento - a.precio_descuento);
+    } else if (filtros.orden === "descuento") {
+      resultado.sort((a, b) => b.porcentaje_descuento - a.porcentaje_descuento);
+    }
+
+    console.log(`Productos finales después de todos los filtros: ${resultado.length}`);
+    setProductosFiltrados(resultado);
+  };
+
+  const convertirProductoParaTarjeta = (producto: ProductoPublico) => ({
+    id: producto.id,
+    title: producto.nombre,
+    description: producto.descripcion,
+    expirationDate: producto.fecha_vencimiento.toLocaleDateString(),
+    deliveryType:
+      producto.tipo_entrega?.recogida && producto.tipo_entrega?.domicilio
+        ? "Recogida y Envío"
+        : producto.tipo_entrega?.domicilio
+          ? "Envío a domicilio"
+          : "Recogida en local",
+    image: producto.imagen_url
+      ? { uri: producto.imagen_url }
+      : require("@/assets/images/arroz.jpg"),
     rating: 4.5,
-    reviews: 68,
-    store: "Fonda Mi Ranchito",
-    location: "Rio Abajo",
-    price: "2.8",
-    oldPrice: "4",
-    discount: "30%",
-    top: true,
-  },
-];
-export default function HomeScreen() {
-  return (
-    <View style={{ flex: 1 }}>
-      <Header />
+    reviews: producto.visualizaciones || 0,
+    store: producto.comercio_nombre || "Fonda",
+    location: producto.comercio_direccion || "Panamá",
+    price: producto.precio_descuento.toFixed(2),
+    oldPrice: producto.precio_original.toFixed(2),
+    discount: `${producto.porcentaje_descuento}%`,
+    top: producto.porcentaje_descuento > 0,
+  });
 
+  return (
+    <View style={styles.container}>
+      <Header />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.push("/principal")}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push("/principal")}>
           <Text style={styles.backIcon}>←</Text>
           <Text style={styles.backText}>Volver al inicio</Text>
         </TouchableOpacity>
+
         <View style={styles.mainContainer}>
           <View style={styles.content}>
             <Text style={styles.welcomeTitle}>Fondas/Restaurantes</Text>
             <Text style={styles.welcomeSubtitle}>
-              Evita el desperdicio; disfruta platos caseros que aún pueden ser
-              tuyos.
+              Evita el desperdicio; disfruta platos caseros que aún pueden ser tuyos.
             </Text>
 
-            {/* Mostrar el filtro debajo del título solo en móvil */}
             {isMobile && (
               <View style={styles.mobileFilter}>
-                <Filtro />
+                <Filtro onFilterChange={aplicarFiltros} />
               </View>
             )}
 
-            <Text style={styles.resultText}>
-              {products.length} productos encontrados
-            </Text>
+            <Text style={styles.resultText}>{productosFiltrados.length} productos encontrados</Text>
 
             <View style={styles.gridContainer}>
-              {/* Mostrar el filtro al lado izquierdo solo en pantallas grandes */}
               {!isMobile && (
                 <View style={styles.sidebar}>
-                  <Filtro />
+                  <Filtro onFilterChange={aplicarFiltros} />
                 </View>
               )}
-
               <View style={styles.grid}>
-                {products.map((product, idx) => (
-                  <TarjetasP key={idx} product={product} width={cardWidth} />
-                ))}
+                {loading ? (
+                  <ActivityIndicator size="large" color="#166534" />
+                ) : (
+                  productosFiltrados.map((producto) => (
+                    <TarjetasP
+                      key={producto.id}
+                      product={convertirProductoParaTarjeta(producto)}
+                      width={cardWidth}
+                    />
+                  ))
+                )}
               </View>
             </View>
           </View>
@@ -141,10 +179,35 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   scrollContent: {
     padding: 16,
     paddingBottom: 32,
     alignItems: "center",
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    gap: 6,
+    marginTop: 5,
+  },
+  backIcon: {
+    fontSize: 16,
+    color: "#0f172a",
+  },
+  backText: {
+    fontSize: 14,
+    color: "#0f172a",
+    fontWeight: "500",
   },
   mainContainer: {
     width: "100%",
@@ -158,7 +221,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#1e293b",
     marginBottom: 4,
-    marginTop:10
+    marginTop: 10,
   },
   welcomeSubtitle: {
     fontSize: 14,
@@ -185,27 +248,5 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     maxWidth: 1100,
-  },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#cbd5e1",
-    gap: 6,
-    marginTop: 5,
-  },
-  backIcon: {
-    fontSize: 16,
-    color: "#0f172a",
-  },
-  backText: {
-    fontSize: 14,
-    color: "#0f172a",
-    fontWeight: "500",
   },
 });
