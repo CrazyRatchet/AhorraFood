@@ -81,6 +81,12 @@ export default function HomeScreen() {
   };
 
   const convertirProductoParaTarjeta = (producto: ProductoPublico) => {
+    console.log("🏪 Convirtiendo producto:", {
+      nombre: producto.nombre,
+      comercio_nombre: producto.comercio_nombre,
+      comercio_direccion: producto.comercio_direccion
+    });
+    
     return {
       id: producto.id,
       title: producto.nombre,
@@ -95,11 +101,13 @@ export default function HomeScreen() {
       rating: 4.5, // Por ahora fijo, se puede implementar sistema de ratings después
       reviews: producto.visualizaciones || 0,
       store: producto.comercio_nombre || "Comercio",
-      location: producto.comercio_direccion || "Panamá",
+      location: producto.comercio_direccion || "Ubicación no disponible",
       price: producto.precio_descuento.toFixed(2),
       oldPrice: producto.precio_original.toFixed(2),
       discount: `${producto.porcentaje_descuento}%`,
       top: producto.porcentaje_descuento > 0,
+      negocio: producto.comercio_nombre || "Comercio",
+      tipoEntrega: producto.tipo_entrega?.domicilio ? "domicilio" : "recogida",
     };
   };
 

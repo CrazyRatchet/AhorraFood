@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago Cancelado - AhorraFood</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #15803d;
+            margin-bottom: 20px;
+        }
+        .icon {
+            font-size: 48px;
+            color: #ef4444;
+            margin: 20px 0;
+        }
+        .message {
+            color: #666;
+            margin: 20px 0;
+        }
+        .backup-button {
+            background-color: #15803d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .backup-button:hover {
+            background-color: #16a34a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🍔 AhorraFood</div>
+        <div class="icon">❌</div>
+        <div class="message">
+            <p><strong>Pago cancelado</strong></p>
+            <p>No se realizó ningún cargo. Puedes intentar nuevamente.</p>
+        </div>
+        <button class="backup-button" onclick="openApp()">
+            Volver a AhorraFood
+        </button>
+    </div>
+
+    <script>
+        function openApp() {
+            // Intentar abrir la app con deep link de cancelación
+            window.location.href = 'ahorrafood://payment/cancel';
+            
+            // Fallback: mostrar instrucciones después de 3 segundos
+            setTimeout(() => {
+                document.querySelector('.message').innerHTML = `
+                    <p><strong>¿No se abrió la app automáticamente?</strong></p>
+                    <p>Por favor, abre AhorraFood manualmente para continuar.</p>
+                `;
+            }, 3000);
+        }
+
+        // Intentar abrir la app automáticamente después de 1 segundo
+        setTimeout(openApp, 1000);
+    </script>
+</body>
+</html>

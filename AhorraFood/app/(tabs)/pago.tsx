@@ -39,58 +39,87 @@ export default function Pago() {
   const handlePayNow = async () => {
     if (!parsedProduct) return;
 
-    const pedido = {
-      negocio: parsedProduct.negocio || "desconocido",
-      productos: [
-        {
-          id: parsedProduct.id,
-          nombre: parsedProduct.title,
-          precio: parseFloat(parsedProduct.price),
-          cantidad: 1,
-          tipoEntrega: parsedProduct.tipoEntrega || "recogida",
-        },
-      ],
-      total: parseFloat(parsedProduct.price),
-      metodoPago: method,
-    };
+    if (method === "paypal") {
+      // Para PayPal, crear orden pero NO registrar pedido aún
+      const order: PayPalOrder = {
+        id: '',
+        amount: parseFloat(parsedProduct.price),
+        currency: 'USD',
+        description: 'Pedido AhorraFood',
+        items: [
+          {
+            name: parsedProduct.title,
+            quantity: 1,
+            unit_amount: parseFloat(parsedProduct.price),
+          }
+        ]
+      };
+      setCurrentOrder(order);
+      setShowPayPal(true);
+    } else {
+      // Para tarjeta, registrar pedido inmediatamente
+      const pedido = {
+        negocio: parsedProduct.negocio || "desconocido",
+        productos: [
+          {
+            id: parsedProduct.id,
+            nombre: parsedProduct.title,
+            precio: parseFloat(parsedProduct.price),
+            cantidad: 1,
+            tipoEntrega: parsedProduct.tipoEntrega || "recogida",
+          },
+        ],
+        total: parseFloat(parsedProduct.price),
+        metodoPago: method,
+      };
 
-    try {
-      await registrarPedido(pedido);
-
-      if (method === "paypal") {
-        const order: PayPalOrder = {
-          id: '',
-          amount: pedido.total,
-          currency: 'USD',
-          description: 'Pedido AhorraFood',
-          items: [
-            {
-              name: pedido.productos[0].nombre,
-              quantity: 1,
-              unit_amount: pedido.productos[0].precio,
-            }
-          ]
-        };
-        setCurrentOrder(order);
-        setShowPayPal(true);
-      } else {
+      try {
+        await registrarPedido(pedido);
         router.push({
           pathname: "/confirmacionP",
           params: { product: JSON.stringify(parsedProduct) },
         });
+      } catch (e) {
+        Alert.alert("Error", "No se pudo registrar el pedido.");
       }
-    } catch (e) {
-      Alert.alert("Error", "No se pudo registrar el pedido.");
     }
   };
 
 
   const handlePayPalSuccess = async (result: PayPalPaymentResult) => {
-    setShowPayPal(false);
-    router.push({
-      pathname: "/confirmacionP",
-      params: { product: JSON.stringify(parsedProduct) },
-    });
+    try {
+      // Registrar el pedido después del pago exitoso
+      const pedido = {
+        negocio: parsedProduct.negocio || "desconocido",
+        productos: [
+          {
+            id: parsedProduct.id,
+            nombre: parsedProduct.title,
+            precio: parseFloat(parsedProduct.price),
+            cantidad: 1,
+            tipoEntrega: parsedProduct.tipoEntrega || "recogida",
+          },
+        ],
+        total: parseFloat(parsedProduct.price),
+        metodoPago: "paypal",
+        paypalPaymentId: result.id,
+      };
+
+      await registrarPedido(pedido);
+      setShowPayPal(false);
+      
+      router.push({
+        pathname: "/confirmacionP",
+        params: { 
+          product: JSON.stringify(parsedProduct),
+          paymentMethod: "paypal",
+          paymentId: result.id
+        },
+      });
+    } catch (error) {
+      setShowPayPal(false);
+      Alert.alert("Error", "Pago realizado pero hubo un problema al registrar el pedido. Contacta soporte.");
+    }
   };
 
 

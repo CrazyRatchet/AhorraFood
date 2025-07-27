@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirigiendo a AhorraFood...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #15803d;
+            margin-bottom: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #15803d;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .message {
+            color: #666;
+            margin: 20px 0;
+        }
+        .backup-button {
+            background-color: #15803d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .backup-button:hover {
+            background-color: #16a34a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🍔 AhorraFood</div>
+        <div class="spinner"></div>
+        <div class="message">
+            <p><strong>¡Pago completado exitosamente!</strong></p>
+            <p>Redirigiendo a la aplicación...</p>
+        </div>
+        <button class="backup-button" onclick="openApp()" id="openAppBtn">
+            Abrir AhorraFood
+        </button>
+    </div>
+
+    <script>
+        function getUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                paymentId: urlParams.get('paymentId'),
+                PayerID: urlParams.get('PayerID'),
+                token: urlParams.get('token')
+            };
+        }
+
+        function openApp() {
+            const params = getUrlParams();
+            let deepLink = 'ahorrafood://payment/success';
+            
+            if (params.paymentId || params.PayerID || params.token) {
+                const queryParams = new URLSearchParams();
+                if (params.paymentId) queryParams.set('paymentId', params.paymentId);
+                if (params.PayerID) queryParams.set('PayerID', params.PayerID);
+                if (params.token) queryParams.set('token', params.token);
+                deepLink += '?' + queryParams.toString();
+            }
+            
+            // Intentar abrir la app
+            window.location.href = deepLink;
+            
+            // Fallback: mostrar instrucciones después de 3 segundos
+            setTimeout(() => {
+                document.querySelector('.message').innerHTML = `
+                    <p><strong>¿No se abrió la app automáticamente?</strong></p>
+                    <p>Por favor, abre AhorraFood manualmente para ver tu pedido confirmado.</p>
+                `;
+            }, 3000);
+        }
+
+        // Intentar abrir la app automáticamente después de 1 segundo
+        setTimeout(openApp, 1000);
+    </script>
+</body>
+</html>

@@ -7,7 +7,9 @@ import {
   getDocs, 
   Timestamp,
   orderBy,
-  limit 
+  limit,
+  doc,
+  getDoc
 } from "firebase/firestore";
 
 export interface ProductoPublico {
@@ -53,10 +55,13 @@ export const obtenerTodosLosProductos = async (): Promise<ProductoPublico[]> => 
     
     const productos: ProductoPublico[] = [];
     
-    querySnapshot.docs.forEach((doc, index) => {
-      const data = doc.data();
+    // Procesar cada producto y obtener información del comercio
+    for (let index = 0; index < querySnapshot.docs.length; index++) {
+      const docSnapshot = querySnapshot.docs[index];
+      const data = docSnapshot.data();
+      
       console.log(`📄 Documento ${index + 1}:`, {
-        id: doc.id,
+        id: docSnapshot.id,
         nombre: data.nombre || "Sin nombre",
         estado: data.estado || "Sin estado",
         cantidad: data.cantidad_disponible || "Sin cantidad",
@@ -64,8 +69,36 @@ export const obtenerTodosLosProductos = async (): Promise<ProductoPublico[]> => 
       });
       
       try {
+        // Obtener información del comercio si existe comercio_id
+        let comercioData = {
+          nombre: "Comercio Local",
+          categoria: "Establecimiento", 
+          direccion: "Panamá"
+        };
+        
+        if (data.comercio_id) {
+          try {
+            const comercioRef = doc(db, "comercios", data.comercio_id);
+            const comercioSnapshot = await getDoc(comercioRef);
+            
+            if (comercioSnapshot.exists()) {
+              const comercio = comercioSnapshot.data();
+              comercioData = {
+                nombre: comercio.nombre || "Comercio Local",
+                categoria: comercio.categoria || "Establecimiento",
+                direccion: comercio.direccion || "Panamá"
+              };
+              console.log(`✅ Información de comercio obtenida para ${comercioData.nombre}`);
+            } else {
+              console.log(`⚠️ Comercio no encontrado para ID: ${data.comercio_id}`);
+            }
+          } catch (comercioError) {
+            console.error(`❌ Error obteniendo comercio ${data.comercio_id}:`, comercioError);
+          }
+        }
+        
         const producto = {
-          id: doc.id,
+          id: docSnapshot.id,
           comercio_id: data.comercio_id || "",
           nombre: data.nombre || "Producto sin nombre",
           descripcion: data.descripcion || "Sin descripción",
@@ -86,19 +119,19 @@ export const obtenerTodosLosProductos = async (): Promise<ProductoPublico[]> => 
             : new Date(data.fecha_actualizacion || Date.now()),
           ventas: Number(data.ventas) || 0,
           visualizaciones: Number(data.visualizaciones) || 0,
-          comercio_nombre: "Comercio Local",
-          comercio_categoria: "Establecimiento",
-          comercio_direccion: "Panamá",
-          tipo_entrega: { recogida: true, domicilio: false },
+          comercio_nombre: comercioData.nombre,
+          comercio_categoria: comercioData.categoria,
+          comercio_direccion: comercioData.direccion,
+          tipo_entrega: data.tipo_entrega || { recogida: true, domicilio: false },
         } as ProductoPublico;
         
         productos.push(producto);
-        console.log(`✅ Producto ${index + 1} procesado correctamente`);
+        console.log(`✅ Producto ${index + 1} procesado correctamente con comercio: ${comercioData.nombre}`);
         
       } catch (error) {
         console.error(`❌ Error procesando documento ${index + 1}:`, error);
       }
-    });
+    }
     
     console.log("🎯 Total productos procesados:", productos.length);
     return productos;
@@ -122,28 +155,68 @@ export const obtenerProductosMejorValorados = async (limite: number = 6): Promis
     const querySnapshot = await getDocs(q);
     console.log("📊 Documentos encontrados:", querySnapshot.docs.length);
     
-    const productos = querySnapshot.docs.map(doc => {
-      const data = doc.data();
+    const productos: ProductoPublico[] = [];
+    
+    // Procesar cada producto y obtener información del comercio
+    for (const docSnapshot of querySnapshot.docs) {
+      const data = docSnapshot.data();
       console.log("📄 Producto:", data.nombre, "Estado:", data.estado, "Cantidad:", data.cantidad_disponible);
-      return {
-        id: doc.id,
-        ...data,
+      
+      // Obtener información del comercio si existe comercio_id
+      let comercioData = {
+        nombre: "Comercio Local",
+        categoria: "Establecimiento", 
+        direccion: "Panamá"
+      };
+      
+      if (data.comercio_id) {
+        try {
+          const comercioRef = doc(db, "comercios", data.comercio_id);
+          const comercioSnapshot = await getDoc(comercioRef);
+          
+          if (comercioSnapshot.exists()) {
+            const comercio = comercioSnapshot.data();
+            comercioData = {
+              nombre: comercio.nombre || "Comercio Local",
+              categoria: comercio.categoria || "Establecimiento",
+              direccion: comercio.direccion || "Panamá"
+            };
+          }
+        } catch (comercioError) {
+          console.error(`❌ Error obteniendo comercio ${data.comercio_id}:`, comercioError);
+        }
+      }
+      
+      const producto = {
+        id: docSnapshot.id,
+        comercio_id: data.comercio_id || "",
+        nombre: data.nombre || "Producto sin nombre",
+        descripcion: data.descripcion || "Sin descripción",
+        precio_original: Number(data.precio_original) || 0,
+        precio_descuento: Number(data.precio_descuento) || 0,
+        porcentaje_descuento: Number(data.porcentaje_descuento) || 0,
+        cantidad_disponible: Number(data.cantidad_disponible) || 0,
         fecha_vencimiento: data.fecha_vencimiento instanceof Timestamp 
           ? data.fecha_vencimiento.toDate() 
           : new Date(data.fecha_vencimiento),
+        imagen_url: data.imagen_url || "",
+        estado: data.estado || "activo",
         fecha_creacion: data.fecha_creacion instanceof Timestamp 
           ? data.fecha_creacion.toDate() 
           : new Date(data.fecha_creacion),
         fecha_actualizacion: data.fecha_actualizacion instanceof Timestamp 
           ? data.fecha_actualizacion.toDate() 
           : new Date(data.fecha_actualizacion),
-        // Valores por defecto para el comercio
-        comercio_nombre: "Comercio Local",
-        comercio_categoria: "Establecimiento",
-        comercio_direccion: "Panamá",
-        tipo_entrega: { recogida: true, domicilio: false },
+        ventas: Number(data.ventas) || 0,
+        visualizaciones: Number(data.visualizaciones) || 0,
+        comercio_nombre: comercioData.nombre,
+        comercio_categoria: comercioData.categoria,
+        comercio_direccion: comercioData.direccion,
+        tipo_entrega: data.tipo_entrega || { recogida: true, domicilio: false },
       } as ProductoPublico;
-    });
+      
+      productos.push(producto);
+    }
 
     console.log("✅ Productos procesados:", productos.length);
 

@@ -5,16 +5,16 @@ export const PAYPAL_CONFIG = {
   SANDBOX_API_URL: 'https://api-m.sandbox.paypal.com',
   PRODUCTION_API_URL: 'https://api-m.paypal.com',
   
-  // URLs de redirect para mobile
-  RETURN_URL: 'https://example.com/success',
-  CANCEL_URL: 'https://example.com/cancel',
+  // URLs de redirect para mobile - Por ahora usando un servidor simple
+  RETURN_URL: 'https://postman-echo.com/get?success=true&app=ahorrafood',
+  CANCEL_URL: 'https://postman-echo.com/get?cancel=true&app=ahorrafood',
   
   // Configuración de la aplicación
   APPLICATION_CONTEXT: {
     brand_name: 'AhorraFood',
     landing_page: 'BILLING',
     user_action: 'PAY_NOW',
-    return_url: 'https://example.com/success',
-    cancel_url: 'https://example.com/cancel'
+    return_url: 'https://postman-echo.com/get?success=true&app=ahorrafood',
+    cancel_url: 'https://postman-echo.com/get?cancel=true&app=ahorrafood'
   }
 };
