@@ -5,7 +5,6 @@ import TarjetasL from "@/components/tarjetasL";
 import TarjetasP from "@/components/tarjetasP";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
-
 const screenWidth = Dimensions.get("window").width;
 
 const maxContentWidth = 1100;
@@ -88,7 +87,6 @@ const products = [
     discount: "30%",
     top: true,
   },
-
 ];
 export default function HomeScreen() {
   return (
@@ -98,8 +96,8 @@ export default function HomeScreen() {
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeTitle}>¡Bienvenido a AhorraFood!</Text>
           <Text style={styles.welcomeSubtitle}>
-            Descubre productos deliciosos con descuentos increíbles y ayuda a
-            reducir el desperdicio alimentario
+            Mata el hambre, salva el bolsillo, hacerlo con AhorraFood es
+            sencillo.
           </Text>
         </View>
         <TarjetasL />
@@ -116,7 +114,6 @@ export default function HomeScreen() {
         <Funcion />
         <Footer />
       </ScrollView>
-
     </View>
   );
 }

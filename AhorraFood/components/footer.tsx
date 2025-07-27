@@ -7,6 +7,7 @@ export default function Footer() {
   const insets = useSafeAreaInsets();
   const maxContentWidth = 1100;
   const contentWidth = Math.min(width * 0.95, maxContentWidth);
+  const isMobile = width < 600;
 
   return (
     <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
@@ -14,28 +15,20 @@ export default function Footer() {
         <View
           style={[
             styles.columns,
-            { flexDirection: "row", alignItems: "flex-start" },
+            {
+              flexDirection: isMobile ? "column" : "row",
+              alignItems: isMobile ? "flex-start" : "center",
+              gap: isMobile ? 8 : 0,
+              rowGap: 4,
+            },
           ]}
         >
-          <View style={[styles.column, { marginBottom: 0 }]}>
-            <Text style={styles.heading}>AhorraFood</Text>
-            <Text style={styles.text}>
-              Mata el hambre, salva el bolsillo, hacerlo con AhorraFood es
-              sencillo.
-            </Text>
+          <View style={styles.column}>
+            <Text style={styles.heading}>Aceptar</Text>
+            <Text style={styles.text}>Términos de Servicio</Text>
+            <Text style={styles.text}>Política de Privacidad</Text>
           </View>
-
-          <View style={[styles.column, { marginBottom: 0 }]}>
-            <Text style={styles.highlight}>
-              ¡Únete al movimiento contra el desperdicio!
-            </Text>
-            <Text style={styles.text}>
-              Cada producto que compras ayuda a reducir el desperdicio
-              alimentario y apoya a comercios locales.
-            </Text>
-          </View>
-
-          <View style={[styles.column, { marginBottom: 0 }]}>
+          <View style={styles.column}>
             <Text style={styles.heading}>Contacto</Text>
             <Text style={styles.text}>
               ¿Tienes preguntas? Contáctanos en info@ahorrafood.com
@@ -69,23 +62,19 @@ const styles = StyleSheet.create({
   columns: {
     width: "100%",
     justifyContent: "space-between",
+    flexWrap: "wrap",
     marginBottom: 12,
   },
   column: {
     flex: 1,
     paddingHorizontal: 10,
+    marginBottom: 8,
+    minWidth: 160,
   },
   heading: {
     color: "#f9fafb",
     fontWeight: "bold",
     fontSize: 12,
-    marginBottom: 6,
-    textAlign: "left",
-  },
-  highlight: {
-    color: "#ffffff",
-    fontSize: 13,
-    fontWeight: "bold",
     marginBottom: 6,
     textAlign: "left",
   },

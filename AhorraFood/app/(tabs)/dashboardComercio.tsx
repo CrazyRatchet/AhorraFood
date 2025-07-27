@@ -2,10 +2,10 @@
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import { Feather, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { signOut } from "firebase/auth";
+import { collection, getDocs } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 
 import {
@@ -17,7 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { auth } from "../../FirebaseConfig";
+import { auth, db } from "../../FirebaseConfig";
 import { obtenerProductosComercio } from "../../funciones/productosComercio";
 import { detectUserType, UserProfile } from "../../funciones/userType";
 
@@ -37,27 +37,11 @@ export default function DashboardComercio() {
 
   useFocusEffect(
     React.useCallback(() => {
-      const verificarPedidoCompletado = async () => {
-        const flag = await AsyncStorage.getItem("pedidoCompletado");
-
-        if (flag === "true") {
-          // Actualizar estadísticas en pantalla
-          setStats((prevStats) => ({
-            ...prevStats,
-            ventasHoy: prevStats.ventasHoy + 1,
-            ingresosMes: prevStats.ingresosMes + 2.9,
-          }));
-
-          // Limpiar bandera
-          await AsyncStorage.removeItem("pedidoCompletado");
-        }
-      };
-
-      verificarPedidoCompletado();
-    }, [])
+      if (userProfile.type === "comercio" && userProfile.data?.nombreNegocio) {
+        loadEstadisticasDesdeFirestore(userProfile.data.nombreNegocio);
+      }
+    }, [userProfile])
   );
-
-
 
   useEffect(() => {
     loadUserData();
@@ -71,7 +55,6 @@ export default function DashboardComercio() {
       if (profile.type === "comercio") {
         await loadStats();
       } else {
-        // Si no es comercio, redirigir a la página principal
         router.replace("/principal");
       }
     } catch (error) {
@@ -85,18 +68,36 @@ export default function DashboardComercio() {
   const loadStats = async () => {
     try {
       const productos = await obtenerProductosComercio();
-
-      setStats({
+      setStats((prev) => ({
+        ...prev,
         totalProductos: productos.length,
         productosActivos: productos.filter((p) => p.estado === "activo").length,
-        ventasHoy: productos.reduce((sum, p) => sum + p.ventas, 0),
-        ingresosMes: productos.reduce(
-          (sum, p) => sum + p.ventas * p.precio_descuento,
-          0
-        ),
-      });
+      }));
     } catch (error) {
       console.error("Error cargando estadísticas:", error);
+    }
+  };
+
+  const loadEstadisticasDesdeFirestore = async (nombreNegocio: string) => {
+    try {
+      const snapshot = await getDocs(collection(db, "comercio"));
+      const docEncontrado = snapshot.docs.find(
+        (d) => d.data().nombreNegocio === nombreNegocio
+      );
+
+      if (docEncontrado) {
+        const data = docEncontrado.data();
+        const ventas = data.ventasTotales || 0;
+        const ingresos = data.ingresosTotales || 0;
+
+        setStats((prev) => ({
+          ...prev,
+          ventasHoy: ventas,
+          ingresosMes: ingresos,
+        }));
+      }
+    } catch (error) {
+      console.error("Error actualizando métricas:", error);
     }
   };
 
@@ -260,11 +261,9 @@ export default function DashboardComercio() {
 
 const styles = StyleSheet.create({
   container: {
-
     justifyContent: "space-between",
     backgroundColor: "#f8fafc",
     flexGrow: 1,
-
   },
   dashboardHeader: {
     flexDirection: "row",
@@ -357,42 +356,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "rgba(255, 255, 255, 0.8)",
     marginTop: 2,
-  },
-  statusContainer: {
-    padding: 20,
-  },
-  statusCard: {
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  statusIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  statusText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
-  },
-  categoryText: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginBottom: 4,
-  },
-  deliveryText: {
-    fontSize: 14,
-    color: "#6b7280",
   },
 });

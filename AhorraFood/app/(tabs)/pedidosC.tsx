@@ -13,10 +13,21 @@ import {
   View,
 } from "react-native";
 
-import { collection, doc, getDoc, getDocs, increment, onSnapshot, orderBy, query, Timestamp, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  increment,
+  onSnapshot,
+  orderBy,
+  query,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../FirebaseConfig";
 
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 
 interface Pedido {
   id: string;
@@ -30,12 +41,10 @@ interface Pedido {
   estado: string;
 }
 
-
 export default function PedidosC() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [isUpdating, setIsUpdating] = useState<string>("");
   const prevEstados = useRef<Record<string, string>>({});
-
 
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 600;
@@ -49,15 +58,17 @@ export default function PedidosC() {
 
         const productosArray = data.productos
           ? Object.values(data.productos).map(
-            (prod: any) => `${prod.nombre} x${prod.cantidad}`
-          )
+              (prod: any) => `${prod.nombre} x${prod.cantidad}`
+            )
           : [];
 
         const totalNum = typeof data.total === "number" ? data.total : 0;
 
         let horaStr = "";
         if (data.fechaPedido && (data.fechaPedido as Timestamp).seconds) {
-          const fecha = new Date((data.fechaPedido as Timestamp).seconds * 1000);
+          const fecha = new Date(
+            (data.fechaPedido as Timestamp).seconds * 1000
+          );
           horaStr = fecha.toLocaleTimeString();
         }
 
@@ -81,21 +92,24 @@ export default function PedidosC() {
         // Notificar cuando cambia a "listo"
         if (p.estado.toLowerCase() === "listo" && estadoPrevio !== "listo") {
           Toast.show({
-            type: 'success',
-            text1: 'Pedido listo',
+            type: "success",
+            text1: "Pedido listo",
             text2: `El pedido de ${p.cliente} está listo para recoger.`,
-            position: 'top',
+            position: "top",
             visibilityTime: 4000,
           });
         }
 
         // Notificar cuando el usuario confirma la recogida
-        if (p.estado.toLowerCase() === "completado" && estadoPrevio === "listo") {
+        if (
+          p.estado.toLowerCase() === "completado" &&
+          estadoPrevio === "listo"
+        ) {
           Toast.show({
-            type: 'success',
-            text1: 'Pedido completado',
+            type: "success",
+            text1: "Pedido completado",
             text2: `${p.cliente} confirmó que recogió su pedido.`,
-            position: 'top',
+            position: "top",
             visibilityTime: 4000,
           });
         }
@@ -113,7 +127,7 @@ export default function PedidosC() {
     try {
       setIsUpdating(id);
 
-      const pedido = pedidos.find(p => p.id === id);
+      const pedido = pedidos.find((p) => p.id === id);
       if (!pedido) return;
 
       let nuevoEstado = "";
@@ -141,9 +155,10 @@ export default function PedidosC() {
 
         const pedidoSnap = await getDoc(docRef);
         const pedidoDoc = pedidoSnap.data();
-
+   
         const negocioNombre = pedidoDoc?.negocio;
-        const totalPedido = typeof pedidoDoc?.total === "number" ? pedidoDoc.total : 0;
+        const totalPedido =
+          typeof pedidoDoc?.total === "number" ? pedidoDoc.total : 0;
 
         // Buscar el documento del comercio por nombreNegocio
         const comercioSnap = await getDoc(docRef); // esto lo puedes quitar si ya tienes pedidoDoc
@@ -151,7 +166,7 @@ export default function PedidosC() {
         const snapshot = await getDocs(q);
 
         const negocioDoc = snapshot.docs.find(
-          (d) => d.data().nombreNegocio === negocioNombre
+          (d) => d.data().negocioNombre === negocioNombre
         );
 
         if (negocioDoc) {
@@ -167,8 +182,6 @@ export default function PedidosC() {
         }
       }
 
-
-
       await updateDoc(docRef, updateData);
 
       Toast.show({
@@ -178,8 +191,8 @@ export default function PedidosC() {
           nuevoEstado === "completado"
             ? "El pedido se ha marcado como completado."
             : nuevoEstado === "listo"
-              ? "Pedido listo - Cliente será notificado"
-              : "Pedido en preparación",
+            ? "Pedido listo - Cliente será notificado"
+            : "Pedido en preparación",
         position: "bottom",
         visibilityTime: 3000,
       });
@@ -191,10 +204,8 @@ export default function PedidosC() {
     }
   };
 
-
-
   const cancelarPedido = async (id: string) => {
-    const pedido = pedidos.find(p => p.id === id);
+    const pedido = pedidos.find((p) => p.id === id);
     if (!pedido) return;
 
     Alert.alert(
@@ -203,7 +214,7 @@ export default function PedidosC() {
       [
         {
           text: "No",
-          style: "cancel"
+          style: "cancel",
         },
         {
           text: "Sí, cancelar",
@@ -216,25 +227,24 @@ export default function PedidosC() {
               await updateDoc(docRef, {
                 estado: "cancelado",
                 fechaCancelacion: new Date(),
-                canceladoPor: "comercio"
+                canceladoPor: "comercio",
               });
 
               Toast.show({
-                type: 'error',
-                text1: 'Pedido cancelado',
+                type: "error",
+                text1: "Pedido cancelado",
                 text2: `El pedido de ${pedido.cliente} ha sido cancelado.`,
-                position: 'bottom',
+                position: "bottom",
                 visibilityTime: 3000,
               });
-
             } catch (error) {
               console.error("Error al cancelar pedido:", error);
               Alert.alert("Error", "No se pudo cancelar el pedido");
             } finally {
               setIsUpdating("");
             }
-          }
-        }
+          },
+        },
       ]
     );
   };
@@ -242,7 +252,8 @@ export default function PedidosC() {
   const resumen = pedidos.reduce(
     (acc, p) => {
       acc.Total++;
-      const estado = p.estado.charAt(0).toUpperCase() + p.estado.slice(1).toLowerCase();
+      const estado =
+        p.estado.charAt(0).toUpperCase() + p.estado.slice(1).toLowerCase();
       acc[estado] = (acc[estado] || 0) + 1;
       return acc;
     },
@@ -288,7 +299,6 @@ export default function PedidosC() {
     }
   };
 
-
   const getButtonColor = (estado: string) => {
     const estadoLower = estado.toLowerCase();
     switch (estadoLower) {
@@ -305,12 +315,20 @@ export default function PedidosC() {
 
   const canChangeState = (estado: string) => {
     const estadoLower = estado.toLowerCase();
-    return estadoLower === "pendiente" || estadoLower === "preparando" || estadoLower === "listo";
+    return (
+      estadoLower === "pendiente" ||
+      estadoLower === "preparando" ||
+      estadoLower === "listo"
+    );
   };
 
   const canCancel = (estado: string) => {
     const estadoLower = estado.toLowerCase();
-    return estadoLower === "pendiente" || estadoLower === "preparando" || estadoLower === "listo";
+    return (
+      estadoLower === "pendiente" ||
+      estadoLower === "preparando" ||
+      estadoLower === "listo"
+    );
   };
 
   return (
@@ -329,20 +347,30 @@ export default function PedidosC() {
           </Text>
 
           {/* Información importante */}
-          <View style={{
-            backgroundColor: "#e0f2fe",
-            borderRadius: 8,
-            padding: 12,
-            marginBottom: 16,
-            borderLeftWidth: 4,
-            borderLeftColor: "#0ea5e9"
-          }}>
-            <Text style={{ fontSize: 14, fontWeight: "bold", color: "#0369a1", marginBottom: 4 }}>
+          <View
+            style={{
+              backgroundColor: "#e0f2fe",
+              borderRadius: 8,
+              padding: 12,
+              marginBottom: 16,
+              borderLeftWidth: 4,
+              borderLeftColor: "#0ea5e9",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "bold",
+                color: "#0369a1",
+                marginBottom: 4,
+              }}
+            >
               ℹ️ Información importante
             </Text>
             <Text style={{ fontSize: 12, color: "#0369a1" }}>
-              Una vez que marques un pedido como Listo, el cliente debe confirmar que lo recogió.
-              Solo entonces se marcará como Completado automáticamente.
+              Una vez que marques un pedido como Listo, el cliente debe
+              confirmar que lo recogió. Solo entonces se marcará como Completado
+              automáticamente.
             </Text>
           </View>
 
@@ -373,7 +401,7 @@ export default function PedidosC() {
                   style={{
                     fontSize: 16,
                     fontWeight: "bold",
-                    color: key === "Cancelado" ? "#dc2626" : "#16a34a"
+                    color: key === "Cancelado" ? "#dc2626" : "#16a34a",
                   }}
                 >
                   {value}
@@ -399,15 +427,31 @@ export default function PedidosC() {
                 backgroundColor: "#f1f5f9",
               }}
             >
-              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>Pedido</Text>
-              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>Cliente</Text>
-              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>Productos</Text>
-              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>Total</Text>
-              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>Hora</Text>
+              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>
+                Pedido
+              </Text>
+              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>
+                Cliente
+              </Text>
+              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>
+                Productos
+              </Text>
+              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>
+                Total
+              </Text>
+              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>
+                Hora
+              </Text>
               {/* <Text style={[styles.th, isSmallScreen && styles.thSmall]}>Negocio</Text>  <-- Eliminado */}
-              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>Pago</Text>
-              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>Estado</Text>
-              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>Acciones</Text>
+              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>
+                Pago
+              </Text>
+              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>
+                Estado
+              </Text>
+              <Text style={[styles.th, isSmallScreen && styles.thSmall]}>
+                Acciones
+              </Text>
             </View>
 
             {/* Filas */}
@@ -434,15 +478,29 @@ export default function PedidosC() {
                   >
                     {p.cliente}
                   </Text>
-                  <Text style={{ fontSize: 11, color: "#6b7280" }}>{p.telefono}</Text>
+                  <Text style={{ fontSize: 11, color: "#6b7280" }}>
+                    {p.telefono}
+                  </Text>
                 </View>
-                <Text style={[styles.td, { flex: 1 }, isSmallScreen && styles.tdSmall]}>
+                <Text
+                  style={[
+                    styles.td,
+                    { flex: 1 },
+                    isSmallScreen && styles.tdSmall,
+                  ]}
+                >
                   {p.productos}
                 </Text>
-                <Text style={[styles.td, isSmallScreen && styles.tdSmall]}>{p.total}</Text>
-                <Text style={[styles.td, isSmallScreen && styles.tdSmall]}>{p.hora}</Text>
+                <Text style={[styles.td, isSmallScreen && styles.tdSmall]}>
+                  {p.total}
+                </Text>
+                <Text style={[styles.td, isSmallScreen && styles.tdSmall]}>
+                  {p.hora}
+                </Text>
                 {/* <Text style={[styles.td, isSmallScreen && styles.tdSmall]}>{p.pickup}</Text>  <-- Eliminado */}
-                <Text style={[styles.td, isSmallScreen && styles.tdSmall]}>{p.pago}</Text>
+                <Text style={[styles.td, isSmallScreen && styles.tdSmall]}>
+                  {p.pago}
+                </Text>
                 <View style={[styles.td, { flexDirection: "row" }]}>
                   <Text
                     style={{
@@ -457,14 +515,22 @@ export default function PedidosC() {
                     {p.estado}
                   </Text>
                 </View>
-                <View style={[styles.td, { flexDirection: "row", gap: 4, flex: 1.2 }]}>
+                <View
+                  style={[
+                    styles.td,
+                    { flexDirection: "row", gap: 4, flex: 1.2 },
+                  ]}
+                >
                   {/* Botón principal de cambio de estado */}
                   {canChangeState(p.estado) && (
                     <Pressable
                       onPress={() => cambiarEstado(p.id)}
                       disabled={isUpdating === p.id}
                       style={{
-                        backgroundColor: isUpdating === p.id ? "#9ca3af" : getButtonColor(p.estado),
+                        backgroundColor:
+                          isUpdating === p.id
+                            ? "#9ca3af"
+                            : getButtonColor(p.estado),
                         paddingHorizontal: isSmallScreen ? 8 : 10,
                         paddingVertical: isSmallScreen ? 4 : 6,
                         borderRadius: 6,
@@ -477,7 +543,7 @@ export default function PedidosC() {
                           color: "white",
                           fontSize: isSmallScreen ? 10 : 12,
                           textAlign: "center",
-                          fontWeight: "bold"
+                          fontWeight: "bold",
                         }}
                       >
                         {isUpdating === p.id ? "..." : getButtonText(p.estado)}
@@ -491,7 +557,8 @@ export default function PedidosC() {
                       onPress={() => cancelarPedido(p.id)}
                       disabled={isUpdating === p.id}
                       style={{
-                        backgroundColor: isUpdating === p.id ? "#9ca3af" : "#dc2626",
+                        backgroundColor:
+                          isUpdating === p.id ? "#9ca3af" : "#dc2626",
                         paddingHorizontal: isSmallScreen ? 6 : 8,
                         paddingVertical: isSmallScreen ? 4 : 6,
                         borderRadius: 6,
@@ -504,7 +571,7 @@ export default function PedidosC() {
                           color: "white",
                           fontSize: isSmallScreen ? 10 : 12,
                           textAlign: "center",
-                          fontWeight: "bold"
+                          fontWeight: "bold",
                         }}
                       >
                         {isUpdating === p.id ? "..." : "❌"}
@@ -513,20 +580,31 @@ export default function PedidosC() {
                   )}
 
                   {/* Mostrar estado final para completados y cancelados */}
-                  {(p.estado.toLowerCase() === "completado" || p.estado.toLowerCase() === "cancelado") && (
-                    <View style={{
-                      backgroundColor: p.estado.toLowerCase() === "completado" ? "#bbf7d0" : "#fecaca",
-                      paddingHorizontal: isSmallScreen ? 8 : 10,
-                      paddingVertical: isSmallScreen ? 4 : 6,
-                      borderRadius: 6,
-                      flex: 1,
-                    }}>
-                      <Text style={{
-                        color: p.estado.toLowerCase() === "completado" ? "#166534" : "#dc2626",
-                        fontSize: isSmallScreen ? 10 : 12,
-                        fontWeight: "bold",
-                        textAlign: "center"
-                      }}>
+                  {(p.estado.toLowerCase() === "completado" ||
+                    p.estado.toLowerCase() === "cancelado") && (
+                    <View
+                      style={{
+                        backgroundColor:
+                          p.estado.toLowerCase() === "completado"
+                            ? "#bbf7d0"
+                            : "#fecaca",
+                        paddingHorizontal: isSmallScreen ? 8 : 10,
+                        paddingVertical: isSmallScreen ? 4 : 6,
+                        borderRadius: 6,
+                        flex: 1,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color:
+                            p.estado.toLowerCase() === "completado"
+                              ? "#166534"
+                              : "#dc2626",
+                          fontSize: isSmallScreen ? 10 : 12,
+                          fontWeight: "bold",
+                          textAlign: "center",
+                        }}
+                      >
                         {p.estado.toLowerCase() === "completado" ? "✅" : "❌"}
                       </Text>
                     </View>
