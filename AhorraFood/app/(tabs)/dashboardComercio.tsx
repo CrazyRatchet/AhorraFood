@@ -2,9 +2,12 @@
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import { Feather, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
+
 import {
   ActivityIndicator,
   Alert,
@@ -31,6 +34,30 @@ export default function DashboardComercio() {
     ingresosMes: 0,
   });
   const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const verificarPedidoCompletado = async () => {
+        const flag = await AsyncStorage.getItem("pedidoCompletado");
+
+        if (flag === "true") {
+          // Actualizar estadísticas en pantalla
+          setStats((prevStats) => ({
+            ...prevStats,
+            ventasHoy: prevStats.ventasHoy + 1,
+            ingresosMes: prevStats.ingresosMes + 2.9,
+          }));
+
+          // Limpiar bandera
+          await AsyncStorage.removeItem("pedidoCompletado");
+        }
+      };
+
+      verificarPedidoCompletado();
+    }, [])
+  );
+
+
 
   useEffect(() => {
     loadUserData();
@@ -128,7 +155,7 @@ export default function DashboardComercio() {
   return (
     <View style={{ flex: 1 }}>
       <Header />
-      <ScrollView contentContainerStyle ={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.dashboardHeader}>
           <View>
             <Text style={styles.welcomeText}>¡Bienvenido!</Text>
@@ -233,11 +260,11 @@ export default function DashboardComercio() {
 
 const styles = StyleSheet.create({
   container: {
-    
+
     justifyContent: "space-between",
     backgroundColor: "#f8fafc",
     flexGrow: 1,
-    
+
   },
   dashboardHeader: {
     flexDirection: "row",

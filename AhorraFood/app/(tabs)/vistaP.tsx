@@ -151,6 +151,7 @@ export default function VistaP() {
                 <FontAwesome name="shopping-cart" color="#fff" />
                 <Text style={styles.buttonText}> Agregar al carrito</Text>
               </TouchableOpacity>
+
             </View>
 
             <Reseña />
