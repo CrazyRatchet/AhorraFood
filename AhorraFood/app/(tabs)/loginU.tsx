@@ -29,6 +29,9 @@ export default function LoginUserScreen() {
 
       // Detectar tipo de usuario después del login
       const userProfile = await detectUserType();
+      
+      console.log("🔍 Tipo de usuario detectado:", userProfile.type);
+      console.log("🔍 Datos del usuario:", userProfile.data);
 
       if (Platform.OS === "web") {
         window.alert("Sesión iniciada correctamente");
@@ -38,8 +41,10 @@ export default function LoginUserScreen() {
 
       // Redirigir según el tipo de usuario
       if (userProfile.type === "comercio") {
+        console.log("✅ Redirigiendo a dashboard de comercio");
         router.push("/dashboardComercio");
       } else {
+        console.log("✅ Redirigiendo a principal (usuario normal)");
         router.push("/principal");
       }
     } catch (error: any) {
