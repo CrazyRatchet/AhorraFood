@@ -21,7 +21,7 @@ export default function Pago() {
   const router = useRouter();
 
   const [parsedProduct, setParsedProduct] = useState<any>(null);
-  const [method, setMethod] = useState("tarjeta");
+  const [method, setMethod] = useState("paypal"); // Solo PayPal
   const [showPayPal, setShowPayPal] = useState(false);
   const [currentOrder, setCurrentOrder] = useState<PayPalOrder | null>(null);
 
@@ -39,58 +39,37 @@ export default function Pago() {
   const handlePayNow = async () => {
     if (!parsedProduct) return;
 
-    if (method === "paypal") {
-      // Para PayPal, crear orden pero NO registrar pedido aún
-      const order: PayPalOrder = {
-        id: '',
-        amount: parseFloat(parsedProduct.price),
-        currency: 'USD',
-        description: 'Pedido AhorraFood',
-        items: [
-          {
-            name: parsedProduct.title,
-            quantity: 1,
-            unit_amount: parseFloat(parsedProduct.price),
-          }
-        ]
-      };
-      setCurrentOrder(order);
-      setShowPayPal(true);
-    } else {
-      // Para tarjeta, registrar pedido inmediatamente
-      const pedido = {
-        negocio: parsedProduct.negocio || "desconocido",
-        productos: [
-          {
-            id: parsedProduct.id,
-            nombre: parsedProduct.title,
-            precio: parseFloat(parsedProduct.price),
-            cantidad: 1,
-            tipoEntrega: parsedProduct.tipoEntrega || "recogida",
-          },
-        ],
-        total: parseFloat(parsedProduct.price),
-        metodoPago: method,
-      };
-
-      try {
-        await registrarPedido(pedido);
-        router.push({
-          pathname: "/confirmacionP",
-          params: { product: JSON.stringify(parsedProduct) },
-        });
-      } catch (e) {
-        Alert.alert("Error", "No se pudo registrar el pedido.");
-      }
-    }
+    // Solo PayPal como método de pago
+    const order: PayPalOrder = {
+      id: '',
+      amount: parseFloat(parsedProduct.price),
+      currency: 'USD',
+      description: 'Pedido AhorraFood',
+      items: [
+        {
+          name: parsedProduct.title,
+          quantity: 1,
+          unit_amount: parseFloat(parsedProduct.price),
+        }
+      ]
+    };
+    setCurrentOrder(order);
+    setShowPayPal(true);
   };
 
 
   const handlePayPalSuccess = async (result: PayPalPaymentResult) => {
     try {
+      console.log("=== DEBUGGING PAGO ===");
+      console.log("Producto completo:", parsedProduct);
+      console.log("comercio_id del producto:", parsedProduct.comercio_id);
+      console.log("negocio del producto:", parsedProduct.negocio);
+      console.log("precio del producto:", parsedProduct.price);
+      
       // Registrar el pedido después del pago exitoso
       const pedido = {
         negocio: parsedProduct.negocio || "desconocido",
+        comercio_id: parsedProduct.comercio_id || parsedProduct.negocio, // Usar comercio_id si existe
         productos: [
           {
             id: parsedProduct.id,
@@ -105,6 +84,8 @@ export default function Pago() {
         paypalPaymentId: result.id,
       };
 
+      console.log("Pedido a registrar:", pedido);
+      console.log("comercio_id final:", pedido.comercio_id);
       await registrarPedido(pedido);
       setShowPayPal(false);
       
@@ -146,68 +127,21 @@ export default function Pago() {
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.wrapper}>
           <Text style={styles.title}>Finalizar compra</Text>
-          <Text style={styles.subtitle}>Completa tu información de pago</Text>
+          <Text style={styles.subtitle}>Pago seguro con PayPal</Text>
 
-          {/* Info de pago */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Información de pago</Text>
-            <View style={styles.row}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Nombre completo</Text>
-                <TextInput style={styles.input} placeholder="Juan Pérez" />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Correo electrónico</Text>
-                <TextInput style={styles.input} placeholder="juan@example.com" />
-              </View>
-            </View>
-          </View>
-
-          {/* Método de pago */}
+          {/* Método de pago - Solo PayPal */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Método de pago</Text>
 
-            <TouchableOpacity
-              style={[styles.methodBox, method === "tarjeta" && styles.selectedMethod]}
-              onPress={() => setMethod("tarjeta")}
-            >
-              <FontAwesome5 name="credit-card" size={16} color={method === "tarjeta" ? "#15803d" : "#6b7280"} />
-              <Text style={styles.methodText}>Tarjeta de crédito/débito</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.methodBox, method === "paypal" && styles.selectedMethod]}
-              onPress={() => setMethod("paypal")}
-            >
-              <FontAwesome5 name="paypal" size={16} color={method === "paypal" ? "#15803d" : "#6b7280"} />
-              <Text style={styles.methodText}>PayPal</Text>
-            </TouchableOpacity>
-
-            {method === "tarjeta" && (
-              <>
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Número de tarjeta</Text>
-                  <TextInput style={styles.input} placeholder="1234 5678 9012 3456" keyboardType="numeric" />
-                </View>
-                <View style={styles.row}>
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Fecha de expiración</Text>
-                    <TextInput style={styles.input} placeholder="12/26" />
-                  </View>
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>CVV</Text>
-                    <TextInput style={styles.input} placeholder="123" keyboardType="numeric" secureTextEntry />
-                  </View>
-                </View>
-              </>
-            )}
+            <View style={[styles.methodBox, styles.selectedMethod]}>
+              <FontAwesome5 name="paypal" size={16} color="#15803d" />
+              <Text style={styles.methodText}>PayPal - Pago seguro</Text>
+            </View>
           </View>
 
           <TouchableOpacity style={styles.payBtn} onPress={handlePayNow}>
             <Text style={styles.payText}>
-              {method === "paypal"
-                ? `Pagar con PayPal USD ${parsedProduct.price}`
-                : `Pagar ahora USD ${parsedProduct.price}`}
+              Pagar con PayPal USD ${parsedProduct.price}
             </Text>
           </TouchableOpacity>
         </View>
