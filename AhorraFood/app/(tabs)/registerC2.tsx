@@ -150,8 +150,7 @@ export default function RegisterStep2() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <Header />
+   
       <View style={{ alignItems: "center", paddingVertical: 20 }}>
         <ScrollView
           contentContainerStyle={[
@@ -306,7 +305,7 @@ export default function RegisterStep2() {
         </ScrollView>
         <Footer />
       </View>
-    </View>
+    
   );
 }
 

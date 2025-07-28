@@ -166,7 +166,7 @@ export default function RegisterC3() {
             {termsAccepted && <View style={styles.checkboxChecked} />}
           </TouchableOpacity>
           <Text style={styles.termsText}>
-            Acepto los <Text style={styles.link}>términos y condiciones</Text>{" "}
+            Acepto los <Text style={styles.link} onPress={() => router.push("/terminosC")}>términos y condiciones</Text>{" "}
             de AhorraFood
           </Text>
         </View>
