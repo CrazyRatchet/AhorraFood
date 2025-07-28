@@ -117,7 +117,7 @@ export default function TabsLayout() {
           headerShown: false,
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="agregarP"
         options={{
           title: "productos comercio",
@@ -133,7 +133,7 @@ export default function TabsLayout() {
           headerShown: false,
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="pago"
         options={{
           title: "Pago",
@@ -149,7 +149,7 @@ export default function TabsLayout() {
           headerShown: false,
         }}
       />
-        <Tabs.Screen
+      <Tabs.Screen
         name="estadoP"
         options={{
           title: "Estado Pedido",
@@ -157,10 +157,26 @@ export default function TabsLayout() {
           headerShown: false,
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="historialP"
         options={{
           title: "Historial Pedido",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="terminosC"
+        options={{
+          title: "terminos y condiciones",
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="politicasP"
+        options={{
+          title: "Políticas de Privacidad",
           tabBarStyle: { display: "none" },
           headerShown: false,
         }}

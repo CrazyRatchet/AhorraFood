@@ -30,7 +30,9 @@ export default function RegisterC3() {
   });
 
   const pickDocument = async (field: "licencia" | "permisos_salud" | "ruc") => {
-    const result = await DocumentPicker.getDocumentAsync({ copyToCacheDirectory: true });
+    const result = await DocumentPicker.getDocumentAsync({
+      copyToCacheDirectory: true,
+    });
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setFiles((prev) => ({ ...prev, [field]: result.assets[0].uri }));
     }
@@ -84,7 +86,8 @@ export default function RegisterC3() {
       console.error("Error al registrar:", error);
       Alert.alert(
         "Error al registrar",
-        error.message || "Hubo un problema al registrar tu comercio. Inténtalo nuevamente."
+        error.message ||
+          "Hubo un problema al registrar tu comercio. Inténtalo nuevamente."
       );
     } finally {
       setIsSubmitting(false);
@@ -96,7 +99,9 @@ export default function RegisterC3() {
       <Header />
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Registro de Comercio - Paso 3</Text>
-        <Text style={styles.subtitle}>Documentos finales - Sube la documentación requerida</Text>
+        <Text style={styles.subtitle}>
+          Documentos finales - Sube la documentación requerida
+        </Text>
 
         <View style={styles.stepsContainer}>
           <View style={[styles.stepCircle, styles.completedStep]}>
@@ -118,21 +123,34 @@ export default function RegisterC3() {
         </Text>
 
         <View style={styles.uploadContainer}>
-          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("licencia")}>
+          <TouchableOpacity
+            style={styles.uploadBox}
+            onPress={() => pickDocument("licencia")}
+          >
             <Ionicons name="cloud-upload-outline" size={28} color="#6b7280" />
             <Text style={styles.uploadText}>
-              {files.licencia ? "Licencia subida ✔" : "Sube tu licencia de funcionamiento"}
+              {files.licencia
+                ? "Licencia subida ✔"
+                : "Sube tu licencia de funcionamiento"}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("permisos_salud")}>
+          <TouchableOpacity
+            style={styles.uploadBox}
+            onPress={() => pickDocument("permisos_salud")}
+          >
             <Ionicons name="cloud-upload-outline" size={28} color="#6b7280" />
             <Text style={styles.uploadText}>
-              {files.permisos_salud ? "Permiso de salud subido ✔" : "Sube tu permiso de salud"}
+              {files.permisos_salud
+                ? "Permiso de salud subido ✔"
+                : "Sube tu permiso de salud"}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.uploadBox} onPress={() => pickDocument("ruc")}>
+          <TouchableOpacity
+            style={styles.uploadBox}
+            onPress={() => pickDocument("ruc")}
+          >
             <Ionicons name="cloud-upload-outline" size={28} color="#6b7280" />
             <Text style={styles.uploadText}>
               {files.ruc ? "RUC subido ✔" : "Sube tu registro tributario (RUC)"}
@@ -148,18 +166,22 @@ export default function RegisterC3() {
             {termsAccepted && <View style={styles.checkboxChecked} />}
           </TouchableOpacity>
           <Text style={styles.termsText}>
-            Acepto los <Text style={styles.link}>términos y condiciones</Text> de AhorraFood
+            Acepto los <Text style={styles.link}>términos y condiciones</Text>{" "}
+            de AhorraFood
           </Text>
         </View>
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.push("/registerC2")}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.push("/registerC2")}
+          >
             <Text style={styles.backButtonText}>Anterior</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.submitButton,
-              (!termsAccepted || isSubmitting) && { opacity: 0.5 }
+              (!termsAccepted || isSubmitting) && { opacity: 0.5 },
             ]}
             disabled={!termsAccepted || isSubmitting}
             onPress={handleSubmit}
@@ -169,8 +191,8 @@ export default function RegisterC3() {
             </Text>
           </TouchableOpacity>
         </View>
-        <Footer />
       </ScrollView>
+      <Footer />
     </View>
   );
 }
@@ -182,6 +204,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 16,
     paddingBottom: 40,
+    justifyContent: "space-between",
+    flexGrow: 1,
   },
   title: {
     fontSize: 18,

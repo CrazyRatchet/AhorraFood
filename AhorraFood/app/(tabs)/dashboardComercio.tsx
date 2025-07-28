@@ -1,360 +1,93 @@
-// app/(tabs)/dashboardComercio.tsx
-import Header from "@/components/Header";
-import Footer from "@/components/footer";
-import { Feather, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
-import { useRouter } from "expo-router";
-import { signOut } from "firebase/auth";
-import { collection, getDocs } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { auth, db } from "../../FirebaseConfig";
-import { obtenerProductosComercio } from "../../funciones/productosComercio";
-import { detectUserType, UserProfile } from "../../funciones/userType";
-
-export default function DashboardComercio() {
-  const router = useRouter();
-  const [userProfile, setUserProfile] = useState<UserProfile>({
-    type: null,
-    data: null,
-  });
-  const [stats, setStats] = useState({
-    totalProductos: 0,
-    productosActivos: 0,
-    ventasHoy: 0,
-    ingresosMes: 0,
-  });
-  const [loading, setLoading] = useState(true);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      if (userProfile.type === "comercio" && userProfile.data?.nombreNegocio) {
-        loadEstadisticasDesdeFirestore(userProfile.data.nombreNegocio);
-      }
-    }, [userProfile])
-  );
-
-  useEffect(() => {
-    loadUserData();
-  }, []);
-
-  const loadUserData = async () => {
-    try {
-      const profile = await detectUserType();
-      setUserProfile(profile);
-
-      if (profile.type === "comercio") {
-        await loadStats();
-      } else {
-        router.replace("/principal");
-      }
-    } catch (error) {
-      console.error("Error cargando datos:", error);
-      Alert.alert("Error", "No se pudieron cargar los datos del comercio");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadStats = async () => {
-    try {
-      const productos = await obtenerProductosComercio();
-      setStats((prev) => ({
-        ...prev,
-        totalProductos: productos.length,
-        productosActivos: productos.filter((p) => p.estado === "activo").length,
-      }));
-    } catch (error) {
-      console.error("Error cargando estadísticas:", error);
-    }
-  };
-
-  const loadEstadisticasDesdeFirestore = async (nombreNegocio: string) => {
-    try {
-      const snapshot = await getDocs(collection(db, "comercio"));
-      const docEncontrado = snapshot.docs.find(
-        (d) => d.data().nombreNegocio === nombreNegocio
-      );
-
-      if (docEncontrado) {
-        const data = docEncontrado.data();
-        const ventas = data.ventasTotales || 0;
-        const ingresos = data.ingresosTotales || 0;
-
-        setStats((prev) => ({
-          ...prev,
-          ventasHoy: ventas,
-          ingresosMes: ingresos,
-        }));
-      }
-    } catch (error) {
-      console.error("Error actualizando métricas:", error);
-    }
-  };
-
-  const handleLogout = async () => {
-    Alert.alert(
-      "Cerrar Sesión",
-      "¿Estás seguro de que quieres cerrar sesión?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Cerrar Sesión",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await signOut(auth);
-              router.replace("/loginU");
-            } catch (error) {
-              Alert.alert("Error", "No se pudo cerrar la sesión");
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  if (loading) {
-    return (
-      <View
-        style={[
-          styles.container,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
-      >
-        <ActivityIndicator size="large" color="#166534" />
-        <Text style={{ marginTop: 16, color: "#6b7280" }}>Cargando...</Text>
-      </View>
-    );
-  }
-
-  if (userProfile.type !== "comercio") {
-    return (
-      <View
-        style={[
-          styles.container,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
-      >
-        <Text style={{ fontSize: 18, color: "#ef4444" }}>Acceso denegado</Text>
-        <Text style={{ color: "#6b7280", marginTop: 8 }}>
-          Esta área es solo para comercios
-        </Text>
-      </View>
-    );
-  }
+export default function Footer() {
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const isMobile = width < 600;
 
   return (
-    <View style={{ flex: 1 }}>
-      <Header />
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.dashboardHeader}>
-          <View>
-            <Text style={styles.welcomeText}>¡Bienvenido!</Text>
-            <Text style={styles.businessName}>
-              {userProfile.data?.nombre || "Mi Comercio"}
-            </Text>
-            <Text style={styles.ownerName}>
-              Propietario: {userProfile.data?.propietario}
-            </Text>
+    <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
+      <View style={[styles.content, isMobile && styles.contentMobile]}>
+        {/* Sección de columnas */}
+        <View style={[styles.columns, isMobile && styles.columnsMobile]}>
+          <View style={styles.column}>
+            <Text style={styles.heading}>Aceptar</Text>
+            <Text style={styles.text}>Términos de Servicio</Text>
+            <Text style={styles.text}>Política de Privacidad</Text>
           </View>
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={() => router.push("/")}
-          >
-            <Feather name="log-out" size={20} color="#ef4444" />
-          </TouchableOpacity>
-        </View>
 
-        {/* Estadísticas */}
-        <View style={styles.statsContainer}>
-          <Text style={styles.sectionTitle}>Resumen del Negocio</Text>
-          <View style={styles.statsGrid}>
-            <View style={[styles.statCard, { backgroundColor: "#dbeafe" }]}>
-              <MaterialIcons name="inventory" size={24} color="#1d4ed8" />
-              <Text style={styles.statNumber}>{stats.totalProductos}</Text>
-              <Text style={styles.statLabel}>Total Productos</Text>
-            </View>
-
-            <View style={[styles.statCard, { backgroundColor: "#dcfce7" }]}>
-              <Feather name="eye" size={24} color="#166534" />
-              <Text style={styles.statNumber}>{stats.productosActivos}</Text>
-              <Text style={styles.statLabel}>Activos</Text>
-            </View>
-
-            <View style={[styles.statCard, { backgroundColor: "#fef3c7" }]}>
-              <FontAwesome5 name="shopping-cart" size={20} color="#d97706" />
-              <Text style={styles.statNumber}>{stats.ventasHoy}</Text>
-              <Text style={styles.statLabel}>Ventas</Text>
-            </View>
-
-            <View style={[styles.statCard, { backgroundColor: "#fce7f3" }]}>
-              <FontAwesome5 name="dollar-sign" size={20} color="#be185d" />
-              <Text style={styles.statNumber}>
-                ${stats.ingresosMes.toFixed(2)}
-              </Text>
-              <Text style={styles.statLabel}>Ingresos</Text>
-            </View>
+          <View style={styles.column}>
+            <Text style={styles.heading}>Contacto</Text>
+            <Text style={styles.text}>
+              ¿Tienes preguntas? Contáctanos en info@ahorrafood.com
+            </Text>
           </View>
         </View>
 
-        {/* Acciones Principales */}
-        <View style={styles.actionsContainer}>
-          <Text style={styles.sectionTitle}>Gestión de Productos</Text>
-
-          <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: "#166534" }]}
-            onPress={() => router.push("/agregarP")}
-          >
-            <Feather name="plus" size={24} color="white" />
-            <View style={styles.actionTextContainer}>
-              <Text style={styles.actionTitle}>Agregar Producto</Text>
-              <Text style={styles.actionSubtitle}>
-                Publica un nuevo producto con descuento
-              </Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="white" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: "#1d4ed8" }]}
-            onPress={() => router.push("/productosC")}
-          >
-            <MaterialIcons name="inventory-2" size={24} color="white" />
-            <View style={styles.actionTextContainer}>
-              <Text style={styles.actionTitle}>Mis Productos</Text>
-              <Text style={styles.actionSubtitle}>
-                Ver, editar y gestionar productos
-              </Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="white" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: "#dc2626" }]}
-            onPress={() => router.push("/pedidosC")}
-          >
-            <Feather name="shopping-bag" size={24} color="white" />
-            <View style={styles.actionTextContainer}>
-              <Text style={styles.actionTitle}>Pedidos</Text>
-              <Text style={styles.actionSubtitle}>
-                Gestionar pedidos recibidos
-              </Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
-        <Footer />
-      </ScrollView>
+        <View style={styles.separator} />
+        <Text style={styles.copyright}>
+          © 2024 AhorraFood. Todos los derechos reservados.
+        </Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    justifyContent: "space-between",
-    backgroundColor: "#f8fafc",
-    flexGrow: 1,
+  footer: {
+    backgroundColor: "#0f172a",
+    width: "100%",
+    marginTop: 20,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    alignItems: "center",
   },
-  dashboardHeader: {
+  content: {
+    width: "100%",
+    maxWidth: 1100,
+    justifyContent: "space-between",
+  },
+  contentMobile: {
+    alignItems: "center",
+  },
+  columns: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginBottom: 10,
+    gap: 20,
+  },
+  columnsMobile: {
+    flexDirection: "column",
     alignItems: "flex-start",
-    padding: 20,
-    backgroundColor: "white",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    gap: 8,
   },
-  welcomeText: {
-    fontSize: 16,
-    color: "#6b7280",
-  },
-  businessName: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#111827",
-    marginTop: 4,
-  },
-  ownerName: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginTop: 2,
-  },
-  logoutButton: {
-    padding: 8,
-  },
-  statsContainer: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 16,
-  },
-  statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  statCard: {
+  column: {
     flex: 1,
-    minWidth: "45%",
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    minWidth: 160,
   },
-  statNumber: {
-    fontSize: 24,
+  heading: {
+    color: "#f9fafb",
     fontWeight: "bold",
-    color: "#111827",
-    marginTop: 8,
+    fontSize: 13,
+    marginBottom: 6,
   },
-  statLabel: {
+  text: {
+    color: "#cbd5e1",
     fontSize: 12,
-    color: "#6b7280",
-    marginTop: 4,
+    lineHeight: 18,
+  },
+  separator: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "#1e293b",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  copyright: {
+    color: "#94a3b8",
+    fontSize: 11,
     textAlign: "center",
-  },
-  actionsContainer: {
-    padding: 20,
-  },
-  actionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  actionTextContainer: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  actionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "white",
-  },
-  actionSubtitle: {
-    fontSize: 14,
-    color: "rgba(255, 255, 255, 0.8)",
-    marginTop: 2,
   },
 });

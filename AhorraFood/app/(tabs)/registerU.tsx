@@ -105,8 +105,8 @@ export default function RegisterUserScreen() {
               {acceptTerms && <View style={styles.checkboxChecked} />}
             </TouchableOpacity>
             <Text style={styles.acceptText}>
-              Acepto los <Text style={styles.link}>Términos de Servicio</Text> y
-              la <Text style={styles.link}>Política de Privacidad</Text>
+              Acepto los <Text style={styles.link} onPress={() => router.push("/terminosC")} >Términos de Servicio</Text> y
+              la <Text style={styles.link} onPress={() => router.push("/politicasP")}>Política de Privacidad</Text>
             </Text>
           </View>
 

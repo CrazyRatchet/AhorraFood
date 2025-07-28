@@ -54,7 +54,8 @@ export default function RegisterC1() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f3f4f6" }}> {/* gris claro general */}
+    <View style={{ flex: 1, backgroundColor: "#f3f4f6" }}>
+      {" "}
       <Header />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.formContainer}>
@@ -103,7 +104,6 @@ export default function RegisterC1() {
         </View>
         <Footer />
       </ScrollView>
-
     </View>
   );
 }
@@ -112,10 +112,13 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingVertical: 32,
     alignItems: "center",
+    flexGrow: 1,
+    justifyContent: "space-between",
   },
   formContainer: {
     backgroundColor: "#f9fafb",
     padding: 24,
+
     borderRadius: 10,
     width: "100%",
     maxWidth: 600,
@@ -125,7 +128,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     gap: 12,
-
   },
   title: {
     fontSize: 18,
