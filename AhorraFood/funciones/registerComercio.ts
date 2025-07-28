@@ -60,10 +60,12 @@ export const registerComercio = async (data: ComercioData) => {
       estado: "pendiente por auth",
       ventas_totales: 0,
       productos_activos: 0,
+      stats_ventas: 0,  // Para las estadísticas automáticas
+      stats_ingresos: 0, // Para las estadísticas automáticas
       fecha_registro: serverTimestamp()
     });
 
-    console.log("Documento de comercio creado exitosamente");
+    console.log("✅ Documento de comercio creado exitosamente en colección 'comercios' con UID:", uid);
 
     // Desloguear al usuario después del registro exitoso
     await signOut(auth);

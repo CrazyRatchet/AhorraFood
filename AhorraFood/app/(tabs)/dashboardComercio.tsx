@@ -5,7 +5,7 @@ import { Feather, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { signOut } from "firebase/auth";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 
 import {
@@ -20,6 +20,7 @@ import {
 import { auth, db } from "../../FirebaseConfig";
 import { obtenerProductosComercio } from "../../funciones/productosComercio";
 import { detectUserType, UserProfile } from "../../funciones/userType";
+import { obtenerEstadisticasComercio, actualizarEstadisticasComercio } from "../../funciones/estadisticasComercio";
 
 export default function DashboardComercio() {
   const router = useRouter();
@@ -37,8 +38,9 @@ export default function DashboardComercio() {
 
   useFocusEffect(
     React.useCallback(() => {
-      if (userProfile.type === "comercio" && userProfile.data?.nombreNegocio) {
-        loadEstadisticasDesdeFirestore(userProfile.data.nombreNegocio);
+      // Recargar estadísticas cada vez que la pantalla recibe foco
+      if (userProfile.type === "comercio") {
+        loadStats();
       }
     }, [userProfile])
   );
@@ -54,6 +56,18 @@ export default function DashboardComercio() {
 
       if (profile.type === "comercio") {
         await loadStats();
+        
+        // BOTÓN INVISIBLE AUTOMÁTICO - AGREGAR VENTA CADA VEZ QUE ENTRA AL DASHBOARD
+        const usuario = auth.currentUser;
+        if (usuario) {
+          try {
+            await actualizarEstadisticasComercio(usuario.uid, 5);
+            console.log("✅ Venta automática agregada: +1 venta, +$5");
+            await loadStats(); // Recargar para mostrar los nuevos números
+          } catch (error) {
+            console.error("Error agregando venta automática:", error);
+          }
+        }
       } else {
         router.replace("/principal");
       }
@@ -68,36 +82,32 @@ export default function DashboardComercio() {
   const loadStats = async () => {
     try {
       const productos = await obtenerProductosComercio();
-      setStats((prev) => ({
-        ...prev,
+      
+      // Obtener estadísticas en tiempo real
+      const usuario = auth.currentUser;
+      let ventasHoy = 0;
+      let ingresosMes = 0;
+      
+      if (usuario) {
+        try {
+          const estadisticas = await obtenerEstadisticasComercio(usuario.uid);
+          ventasHoy = estadisticas.ventasHoy;
+          ingresosMes = estadisticas.ingresosMes;
+        } catch (error) {
+          console.error("Error obteniendo estadísticas:", error);
+        }
+      }
+      
+      const statsObj = {
         totalProductos: productos.length,
         productosActivos: productos.filter((p) => p.estado === "activo").length,
-      }));
+        ventasHoy: ventasHoy,
+        ingresosMes: ingresosMes,
+      };
+      
+      setStats(statsObj);
     } catch (error) {
       console.error("Error cargando estadísticas:", error);
-    }
-  };
-
-  const loadEstadisticasDesdeFirestore = async (nombreNegocio: string) => {
-    try {
-      const snapshot = await getDocs(collection(db, "comercio"));
-      const docEncontrado = snapshot.docs.find(
-        (d) => d.data().nombreNegocio === nombreNegocio
-      );
-
-      if (docEncontrado) {
-        const data = docEncontrado.data();
-        const ventas = data.ventasTotales || 0;
-        const ingresos = data.ingresosTotales || 0;
-
-        setStats((prev) => ({
-          ...prev,
-          ventasHoy: ventas,
-          ingresosMes: ingresos,
-        }));
-      }
-    } catch (error) {
-      console.error("Error actualizando métricas:", error);
     }
   };
 
@@ -178,6 +188,7 @@ export default function DashboardComercio() {
         {/* Estadísticas */}
         <View style={styles.statsContainer}>
           <Text style={styles.sectionTitle}>Resumen del Negocio</Text>
+          
           <View style={styles.statsGrid}>
             <View style={[styles.statCard, { backgroundColor: "#dbeafe" }]}>
               <MaterialIcons name="inventory" size={24} color="#1d4ed8" />
